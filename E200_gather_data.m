@@ -21,8 +21,8 @@ function data=E200_gather_data(path,varargin)
 	% Get path and filename
 	% path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
 	% path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
-	[Pathname,name,extension,versn]=fileparts(path);
-	Filename=[name extension versn];
+	[Pathname,name,extension]=fileparts(path);
+	Filename=[name extension];
 
 	% Save some info for development purposes
 	data.user.dev.path=path;

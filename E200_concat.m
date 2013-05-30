@@ -1,11 +1,6 @@
 function data=E200_concat(data1,data2)
 	data2=copy_bg(data1,data2);
 
-	display('data1')
-	display(data1.raw.images.YAG)
-	display('data2')
-	display(data2.raw.images.YAG)
-
 	% Append things
 	data=recurse_append_struct(data1,data2);
 end
@@ -13,7 +8,7 @@ end
 function data2=copy_bg(data1,data2)
 	% Get the cameras 
 	camstr=fieldnames(data1.raw.images);
-	n_shot=data1.raw.metadata.param.dat{1}.n_shot
+	n_shot=data1.raw.metadata.param.dat{1}.n_shot;
 	
 	% For each camera...
 	for i=1:size(camstr,1)
