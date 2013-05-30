@@ -56,6 +56,7 @@ function data=E200_gather_data(path,varargin)
 
 		data=E200_gather_data(fullfile(Pathname,stepfiles(1).name),1);
 		for i=2:n_steps
+		% for i=2:2
 			steppath=fullfile(Pathname,stepfiles(i).name);
 			data_append=E200_gather_data(steppath,i);
 			data=E200_concat(data,data_append);
@@ -135,7 +136,12 @@ function data=E200_gather_data(path,varargin)
 							'background_format'	, cell_construct('mat',1,n_i_shots));
 				names=fieldnames(cam_back.(str));
 				for i=1:size(names,1)
-					data.raw.images.(str).(names{i})=cell_construct(cam_back.(str).(names{i}),1,n_i_shots);
+					toadd=cam_back.(str).(names{i})
+					if iscell(toadd)
+						data.raw.images.(str).(names{i})=cell_construct(toadd,1,n_i_shots);
+					else
+						data.raw.images.(str).(names{i})=ones(1,n_i_shots)*toadd;
+					end
 				end
 			end
 		end
