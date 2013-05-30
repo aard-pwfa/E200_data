@@ -19,9 +19,8 @@ function data=E200_gather_data(path,varargin)
 	data.user=struct();
 
 	% Get path and filename
-	% path='/nas/nas-li20-pm01/E200/2013/20130511/E200_11071/E200_11071_scan_info.mat';
-	% path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11208/E200_11208_2013-05-20-19-04-30_filenames.mat';
-	path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
+	% path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
+	% path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
 	[Pathname,name,extension,versn]=fileparts(path);
 	Filename=[name extension versn];
 
@@ -44,27 +43,25 @@ function data=E200_gather_data(path,varargin)
 	    error('File not valid.');
 	end
 	
-	% Type-specific Initialization\
+	% Type-specific Initialization
 	switch settype
 	    case 'scan'
 	
 	        % Load scan_info file
 	        load(path);
-	        
-	        % Load first filename file
-	        dirs=dir(fullfile(Pathname,'*_2013*.mat'));
-	        load(fullfile(Pathname,dirs(1).name));
+		n_steps=size(scan_info,2);
 
-		data.user.dev.load=fullfile(Pathname,dirs(1).name);
-		
-		% Initialize data.raw.images
-		
+		% Find files for steps
+		stepfiles=dir(fullfile(Pathname,'*_filenames.mat'));
 
-	        n_steps=size(scan_info,2);
-	
-		% handles.scan.scan_info=scan_info;
-		% handles.scan.n_steps=n_steps;
-	        
+		data=E200_gather_data(fullfile(Pathname,stepfiles(1).name),1);
+		for i=2:n_steps
+			steppath=fullfile(Pathname,stepfiles(i).name);
+			data_append=E200_gather_data(steppath,i);
+			data=E200_concat(data,data_append);
+		end
+		data.user.dev.stepfiles=stepfiles;
+
 	    case 'daq'
 	        % Load file
 	        load(fullfile(Pathname,[Filename(1:end-14) '.mat']));
@@ -73,6 +70,9 @@ function data=E200_gather_data(path,varargin)
 		% Convert epics_data to a list
 		n_e_shots      = size(epics_data,2);
 		epics_data_mat = cell2mat(squeeze(struct2cell(epics_data)));
+
+		% Assume image list will be as long as requested
+		n_i_shots=param.n_shot;
 
 		% Generate epics-type UID
 		bool        = strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
@@ -93,43 +93,50 @@ function data=E200_gather_data(path,varargin)
 		data.raw.scalars.step           = add_raw(e_scan_step,e_UID,'EPICS');
 		data.raw.scalars.dataset_number = add_raw(e_dataset, e_UID, 'EPICS');
 
-		% Extract and save backgrounds (consistency)
-		% First check and make directories
-		imgpath=fullfile(Pathname,'images');
-		if ~( exist( imgpath )==7 )
-			mkdir(imgpath);
-		end
-		% Save backgrounds to file
-		camstr=fieldnames(cam_back);
-		for i=1:size(camstr,1)
-			% bgname=[camstr{i} '_set' num2str(dataset) '_step' num2str(scan_step) '.mat'];
-			bg_name=bgname(camstr{i},dataset,scan_step);
-			bgpath=fullfile(imgpath,bg_name);
-			% Save if backgrounds don't exist
-			if ~( exist(bgpath)==2 )
-				display('Saving background file...');
-				img=cam_back.(camstr{i}).img;
+		% Extract and save backgrounds if they exist(consistency)
+		if isstruct(cam_back)
+			% First check and make directories
+			imgpath=fullfile(Pathname,'images');
+			if ~( exist( imgpath )==7 )
+				mkdir(imgpath);
+			end
+			% Save backgrounds to file
+			camstr=fieldnames(cam_back);
+			for i=1:size(camstr,1)
+				% bgname=[camstr{i} '_set' num2str(dataset) '_step' num2str(scan_step) '.mat'];
+				bg_name=bgname(camstr{i},dataset,scan_step);
+				bgpath=fullfile(imgpath,bg_name);
+				% Save if backgrounds don't exist
+				if ~( exist(bgpath)==2 )
+					display('Saving background file...');
+					img=cam_back.(camstr{i}).img;
+					save(bgpath,'img');
+				end
 				cam_back.(camstr{i})=rmfield(cam_back.(camstr{i}),'img');
-				save(bgpath,'img');
 			end
 		end
 
 		% Initialize data.raw.images.(name)
-		format=cell_construct('bin',1,n_e_shots);
+		format=cell_construct('bin',1,n_i_shots);
 		for i=1:size(param.cams,1)
 			str=param.cams{i,1};
 			data.raw.images.(str)=struct();
 			data.raw.images.(str)=replace_field(data.raw.images.(str),...
-							'dat'			, cell_construct(filenames.(str),1,n_e_shots),...
+							'dat'			, cell_construct(filenames.(str),1,n_i_shots),...
 							'format'		, format, ...
-							'bin_index'		, [1:n_e_shots], ...
-							'background_dat'	, bgname(str,dataset,scan_step),...
-							'background_format'	, 'mat', ...
+							'bin_index'		, [1:n_i_shots], ...
 							'IDtype'		, 'Image');
 			% Add the remaining info from cam_back
-			names=fieldnames(cam_back.(str));
-			for i=1:size(names,1)
-				data.raw.images.(str).(names{i})=cam_back.(str).(names{i});
+			if isstruct(cam_back)
+				data.raw.images.(str)=replace_field(data.raw.images.(str),...
+							'background_dat'	, cell_construct(...
+												bgname(str,dataset,scan_step),...
+												1,n_i_shots),...
+							'background_format'	, cell_construct('mat',1,n_i_shots));
+				names=fieldnames(cam_back.(str));
+				for i=1:size(names,1)
+					data.raw.images.(str).(names{i})=cell_construct(cam_back.(str).(names{i}),1,n_i_shots);
+				end
 			end
 		end
 
