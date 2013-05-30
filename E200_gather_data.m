@@ -1,4 +1,9 @@
-function data=E200_gather_data(path)
+function data=E200_gather_data(path,varargin)
+	if nargin>1
+		scan_step=varargin{1};
+	else
+		scan_step=1;
+	end
 	% Initialize data structure
 	data             = struct();
 	data.Version = 0.1;
@@ -6,8 +11,8 @@ function data=E200_gather_data(path)
 	data.raw         = struct();
 	data.raw.images  = struct();
 	data.raw.scalars = struct();
+	data.raw.vectors = struct();
 	data.raw.arrays  = struct();
-	data.raw.lists   = struct();
 
 	data.processed   = data.raw;
 
@@ -20,8 +25,7 @@ function data=E200_gather_data(path)
 	[Pathname,name,extension,versn]=fileparts(path);
 	Filename=[name extension versn];
 
-	display(fullfile(Pathname, Filename));
-
+	% Save some info for development purposes
 	data.user.dev.path=path;
 	data.user.dev.Pathname=Pathname;
 	data.user.dev.Filename=Filename;
@@ -67,38 +71,94 @@ function data=E200_gather_data(path)
 	        load(path);
 
 		% Convert epics_data to a list
-		n_shots=size(epics_data,2);
-		epics_data_mat=cell2mat(squeeze(struct2cell(epics_data)));
-		
+		n_e_shots      = size(epics_data,2);
+		epics_data_mat = cell2mat(squeeze(struct2cell(epics_data)));
+
+		% Generate epics-type UID
+		bool        = strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
+		e_PID       = epics_data_mat(bool,:);
+		e_scan_step = ones(1,n_e_shots)*scan_step;
+		dataset     = str2num(param.save_name(6:10));
+		e_dataset   = dataset * ones(1,n_e_shots);
+		UIDs        = assign_UID(e_PID,e_scan_step,e_dataset);
+		e_UID       = UIDs.epics_UID;
+
 		% Put in epics_data
 		names=fieldnames(epics_data);
 		for i=1:size(names,1)
-			data.raw.scalars.(names{i}).dat=epics_data_mat(i,:);
+			data.raw.scalars.(names{i})=add_raw(epics_data_mat(i,:),e_UID,'EPICS');
 		end
-		PulseID=data.raw.scalars.PATT_SYS1_1_PULSEID;
 
-		% Only one step
-		data.raw.scalars.step=struct('dat',ones(1,n_shots), ...
-						'PulseID',PulseID, ...
-						'type','Epics');
+		% Save these things to the struct
+		data.raw.scalars.step           = add_raw(e_scan_step,e_UID,'EPICS');
+		data.raw.scalars.dataset_number = add_raw(e_dataset, e_UID, 'EPICS');
+
+		% Extract and save backgrounds (consistency)
+		% First check and make directories
+		imgpath=fullfile(Pathname,'images');
+		if ~( exist( imgpath )==7 )
+			mkdir(imgpath);
+		end
+		% Save backgrounds to file
+		camstr=fieldnames(cam_back);
+		for i=1:size(camstr,1)
+			% bgname=[camstr{i} '_set' num2str(dataset) '_step' num2str(scan_step) '.mat'];
+			bg_name=bgname(camstr{i},dataset,scan_step);
+			bgpath=fullfile(imgpath,bg_name);
+			% Save if backgrounds don't exist
+			if ~( exist(bgpath)==2 )
+				display('Saving background file...');
+				img=cam_back.(camstr{i}).img;
+				cam_back.(camstr{i})=rmfield(cam_back.(camstr{i}),'img');
+				save(bgpath,'img');
+			end
+		end
 
 		% Initialize data.raw.images.(name)
+		format=cell_construct('bin',1,n_e_shots);
 		for i=1:size(param.cams,1)
 			str=param.cams{i,1};
-			data.raw.images.(str).dat=filenames.(str);
-			% data.raw.images.(str).
+			data.raw.images.(str)=struct();
+			data.raw.images.(str)=replace_field(data.raw.images.(str),...
+							'dat'			, cell_construct(filenames.(str),1,n_e_shots),...
+							'format'		, format, ...
+							'bin_index'		, [1:n_e_shots], ...
+							'background_dat'	, bgname(str,dataset,scan_step),...
+							'background_format'	, 'mat', ...
+							'IDtype'		, 'Image');
+			% Add the remaining info from cam_back
+			names=fieldnames(cam_back.(str));
+			for i=1:size(names,1)
+				data.raw.images.(str).(names{i})=cam_back.(str).(names{i});
+			end
 		end
 
+
+		% Add metadata
+		data.raw.metadata.param=add_raw(cell_construct(param,1,n_e_shots), e_UID,'EPICS');
 	        
-	        handles.daq.filenames=filenames;
 	    case 'none'
+		    error('Filetype not understood.');
 	end
 	
 	% All file initializations
 	if ~strcmp(settype,'none')
-	
-	    % handles.param=param;
-	    % handles.cam_back=cam_back;
-	    
 	end
+end
+
+function out=add_raw(dat,UID,IDtype)
+	valid_IDtypes = {'EPICS','AIDA','Image'};
+	if sum(strcmp(IDtype,valid_IDtypes))<1
+		error('Use a valid IDtype.');
+	end
+	if iscell(dat)
+		out=struct();
+		out=replace_field(out,'dat',dat,'UID',UID,'IDtype',IDtype);
+	else
+		out=struct('dat',dat,'UID',UID,'IDtype',IDtype);
+	end
+end
+
+function out=bgname(str,set,step)
+	out=['Background_' str '_set' num2str(set) '_step' num2str(step) '.mat'];
 end
