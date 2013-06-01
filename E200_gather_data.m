@@ -57,7 +57,7 @@ function data=E200_gather_data(path,varargin)
 	% basedataset=[param.experiment]
 	basedataset=[experimentstr '_' datasetstr];
 
-	create_file_tree(Pathname,basedataset);
+	create_file_tree(Pathname,experimentstr,datasetstr);
 
 	% Initialize data structure
 	data             = struct();
@@ -108,8 +108,8 @@ function data=E200_gather_data(path,varargin)
 		bool        = strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
 		e_PID       = epics_data_mat(bool,:);
 		e_scan_step = ones(1,n_e_shots)*scan_step;
-		setstr      = str2num(param.save_name(1:10));
-		dataset     = str2num(param.save_name(6:10));
+		% setstr      = str2num(param.save_name(1:10));
+		dataset     = str2num(datasetstr);
 		e_dataset   = dataset * ones(1,n_e_shots);
 		UIDs        = assign_UID(e_PID,e_scan_step,e_dataset);
 		e_UID       = UIDs.epics_UID;
@@ -132,7 +132,7 @@ function data=E200_gather_data(path,varargin)
 				% bgname=[camstr{i} '_set' num2str(dataset) '_step' num2str(scan_step) '.mat'];
 				% bg_name=bgname(camstr{i},dataset,scan_step);
 				% bgpath=fullfile(imgpath,bg_name);
-				bgpathstr=bgpath(camstr{i},basedataset,scan_step,Pathname);
+				bgpathstr=bgpath(experimentstr,camstr{i},dataset,scan_step,Pathname);
 				% Save if backgrounds don't exist
 				if ~( exist(bgpathstr)==2 )
 					display('Saving background file...');
@@ -158,7 +158,7 @@ function data=E200_gather_data(path,varargin)
 			if isstruct(cam_back)
 				data.raw.images.(str)=replace_field(data.raw.images.(str),...
 							'background_dat'	, cell_construct(...
-												bgpath(str,datasetstr,scan_step,Pathname),...
+												bgpath(experimentstr,str,datasetstr,scan_step,Pathname),...
 												1,n_i_shots),...
 							'background_format'	, cell_construct('mat',1,n_i_shots));
 				names=fieldnames(cam_back.(str));
@@ -199,7 +199,7 @@ function out=add_raw(dat,UID,IDtype)
 	end
 end
 
-function out=bgpath(str,set,step,basepath)
-	out=['Background_' str '_set' num2str(set) '_step' num2str(step) '.mat'];
-	out=fullfile(basepath,[num2str(set) '_files'],'raw','images','backgrounds',out);
+function out=bgpath(experiment,imgname,set,step,basepath)
+	out=['Background_' imgname '_set' num2str(set) '_step' num2str(step) '.mat'];
+	out=fullfile(basepath,[experiment '_' num2str(set) '_files'],'raw','images','backgrounds',out);
 end
