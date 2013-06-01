@@ -51,6 +51,8 @@ function struct=recurse_save_file(struct,path)
 					else
 						copy_if_missing(filestr,newpath);
 					end
+					% Also, change dat to new path
+					struct.dat{i}=newpath;
 					
 					% If background_dat exists, copy file too
 					if sum(strcmp('background_dat',str))
@@ -61,11 +63,8 @@ function struct=recurse_save_file(struct,path)
 						[temppath,tempname,tempext]=fileparts(newpath);
 						[stat,msg,msgid]=mkdir(temppath);
 						copy_if_missing(filestr,newpath);
+						struct.background_dat{i}=newpath;
 					end
-
-
-					% Also, change dat to new path
-					struct.dat{i}=newpath;
 				end
 			end
 		% It is a struct, no isfile: recurse
