@@ -81,6 +81,8 @@ end
 function copy_if_missing(fromstr,tostr)
 	if exist(tostr)~=2
 		display(['Copying file to ' tostr '...']);
-		copyfile(fromstr,tostr);
+		try
+			copyfile(fromstr,tostr);
+		end
 	end
 end
