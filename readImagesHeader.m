@@ -1,4 +1,4 @@
-function [cam_name,pulse_id]=readImagesHeader(path)
+function [cam_name,pulse_id, C]=readImagesHeader(path)
 	% tic;
 	% display(path);
 	fHEAD   = fopen(path);

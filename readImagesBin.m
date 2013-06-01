@@ -1,9 +1,10 @@
 function [image_data, cam_name, pulse_id] = readImagesBin(file_name)
 
-[cam_name, pulse_id] =readImagesHeader([file_name '.header']);
+[cam_name, pulse_id, C] =readImagesHeader([file_name '.header']);
 
 
 tic;
+fprintf('Starting to read %.f images from %s...\n',size(pulse_id,1),cam_name);
 
 fIMAGES = fopen([file_name '.images']);
 
