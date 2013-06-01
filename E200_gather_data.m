@@ -87,13 +87,17 @@ function data=E200_gather_data(path,varargin)
 		n_steps=size(scan_info,2);
 
 		data=E200_gather_data(fullfile(Pathname,stepfiles(1).name),1);
+		data=add_scan_info(data,scan_info(1));
 		for i=2:n_steps
 		% for i=2:2
 			steppath=fullfile(Pathname,stepfiles(i).name);
 			data_append=E200_gather_data(steppath,i);
+			data_append=add_scan_info(data_append,scan_info(i));
+			
 			data=E200_concat(data,data_append);
 		end
 		data.user.dev.stepfiles=stepfiles;
+		data.user.dev.scan_info=scan_info;
 
 	    case 'daq'
 
@@ -121,7 +125,7 @@ function data=E200_gather_data(path,varargin)
 		end
 
 		% Save these things to the struct
-		data.raw.scalars.step           = add_raw(e_scan_step,e_UID,'EPICS');
+		data.raw.scalars.step_num       = add_raw(e_scan_step,e_UID,'EPICS');
 		data.raw.scalars.dataset_number = add_raw(e_dataset, e_UID, 'EPICS');
 
 		% Extract and save backgrounds if they exist(consistency)
@@ -186,20 +190,14 @@ function data=E200_gather_data(path,varargin)
 	end
 end
 
-function out=add_raw(dat,UID,IDtype)
-	valid_IDtypes = {'EPICS','AIDA','Image'};
-	if sum(strcmp(IDtype,valid_IDtypes))<1
-		error('Use a valid IDtype.');
-	end
-	if iscell(dat)
-		out=struct();
-		out=replace_field(out,'dat',dat,'UID',UID,'IDtype',IDtype);
-	else
-		out=struct('dat',dat,'UID',UID,'IDtype',IDtype);
-	end
-end
-
 function out=bgpath(experiment,imgname,set,step,basepath)
 	out=['Background_' imgname '_set' num2str(set) '_step' num2str(step) '.mat'];
 	out=fullfile(basepath,[experiment '_' num2str(set) '_files'],'raw','images','backgrounds',out);
+end
+
+function data=add_scan_info(data,scan_info)
+	UID=data.raw.scalars.step_num.UID;
+	size_UID = size(UID,2);
+	data=add_step_info(data,scan_info.Control_PV_name{1},scan_info.Control_PV);
+	data.raw.metadata.scan_info=add_raw(cell_construct(scan_info,1,size_UID),UID,'EPICS');
 end
