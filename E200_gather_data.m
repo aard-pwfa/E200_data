@@ -4,6 +4,61 @@ function data=E200_gather_data(path,varargin)
 	else
 		scan_step=1;
 	end
+
+	% Get path and filename
+	% path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
+	% path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
+	[Pathname,name,extension]=fileparts(path);
+	Filename=[name extension];
+
+	% Determine which file type is being used.
+	settype='none';
+	searchlist = {{'scan_info.mat','scan'},{'filenames.mat','daq'}};
+	% searchlist = {{'scan_info.mat','scan'}};
+	if (Filename~=0)
+		for searchstr=searchlist
+			if ~isempty(strfind(Filename,searchstr{1}{1}))
+				settype=searchstr{1}{2};
+	        	end
+		end
+	else
+	    error('File not valid.');
+	end
+
+	% Get param so I can get experiment so I can initialize paths
+	% Also, load files needed later
+	switch settype
+	case 'scan'
+	        % Load scan_info file
+	        load(path);
+
+		% Find one step file
+		stepfiles=dir(fullfile(Pathname,'*_filenames.mat'));
+		steppath=fullfile(Pathname,stepfiles(1).name);
+
+		% Load one step file
+		load([steppath(1:end-14) '.mat']);
+
+	case 'daq'
+	        % Load file
+	        load(fullfile(Pathname,[Filename(1:end-14) '.mat']));
+	        load(path);
+	end
+	% param now exists!
+	experimentstr=param.experiment;
+
+	% Strip experiment from filename
+	str=Filename(size(experimentstr,2)+1:end);
+	% Find underscores
+	underscore_ind=strfind(str,'_');
+	% Extract number between underscores
+	datasetstr=str(underscore_ind(1)+1:underscore_ind(2)-1);
+
+	% basedataset=[param.experiment]
+	basedataset=[experimentstr '_' datasetstr];
+
+	create_file_tree(Pathname,basedataset);
+
 	% Initialize data structure
 	data             = struct();
 	data.Version = 0.1;
@@ -18,41 +73,18 @@ function data=E200_gather_data(path,varargin)
 
 	data.user=struct();
 
-	% Get path and filename
-	% path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
-	% path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
-	[Pathname,name,extension]=fileparts(path);
-	Filename=[name extension];
 
 	% Save some info for development purposes
 	data.user.dev.path=path;
 	data.user.dev.Pathname=Pathname;
 	data.user.dev.Filename=Filename;
 	
-	% Determine which file type is being used.
-	settype='none';
-	searchlist = {{'scan_info.mat','scan'},{'filenames.mat','daq'}};
-	% searchlist = {{'scan_info.mat','scan'}};
-	if (Filename~=0)
-		for searchstr=searchlist
-			if ~isempty(strfind(Filename,searchstr{1}{1}))
-				settype=searchstr{1}{2};
-	        	end
-		end
-	else
-	    error('File not valid.');
-	end
 	
 	% Type-specific Initialization
 	switch settype
 	    case 'scan'
 	
-	        % Load scan_info file
-	        load(path);
 		n_steps=size(scan_info,2);
-
-		% Find files for steps
-		stepfiles=dir(fullfile(Pathname,'*_filenames.mat'));
 
 		data=E200_gather_data(fullfile(Pathname,stepfiles(1).name),1);
 		for i=2:n_steps
@@ -64,9 +96,6 @@ function data=E200_gather_data(path,varargin)
 		data.user.dev.stepfiles=stepfiles;
 
 	    case 'daq'
-	        % Load file
-	        load(fullfile(Pathname,[Filename(1:end-14) '.mat']));
-	        load(path);
 
 		% Convert epics_data to a list
 		n_e_shots      = size(epics_data,2);
@@ -79,6 +108,7 @@ function data=E200_gather_data(path,varargin)
 		bool        = strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
 		e_PID       = epics_data_mat(bool,:);
 		e_scan_step = ones(1,n_e_shots)*scan_step;
+		setstr      = str2num(param.save_name(1:10));
 		dataset     = str2num(param.save_name(6:10));
 		e_dataset   = dataset * ones(1,n_e_shots);
 		UIDs        = assign_UID(e_PID,e_scan_step,e_dataset);
@@ -96,22 +126,18 @@ function data=E200_gather_data(path,varargin)
 
 		% Extract and save backgrounds if they exist(consistency)
 		if isstruct(cam_back)
-			% First check and make directories
-			imgpath=fullfile(Pathname,'images');
-			if ~( exist( imgpath )==7 )
-				mkdir(imgpath);
-			end
 			% Save backgrounds to file
 			camstr=fieldnames(cam_back);
 			for i=1:size(camstr,1)
 				% bgname=[camstr{i} '_set' num2str(dataset) '_step' num2str(scan_step) '.mat'];
-				bg_name=bgname(camstr{i},dataset,scan_step);
-				bgpath=fullfile(imgpath,bg_name);
+				% bg_name=bgname(camstr{i},dataset,scan_step);
+				% bgpath=fullfile(imgpath,bg_name);
+				bgpathstr=bgpath(camstr{i},basedataset,scan_step,Pathname);
 				% Save if backgrounds don't exist
-				if ~( exist(bgpath)==2 )
+				if ~( exist(bgpathstr)==2 )
 					display('Saving background file...');
 					img=cam_back.(camstr{i}).img;
-					save(bgpath,'img');
+					save(bgpathstr,'img');
 				end
 				cam_back.(camstr{i})=rmfield(cam_back.(camstr{i}),'img');
 			end
@@ -125,18 +151,19 @@ function data=E200_gather_data(path,varargin)
 			data.raw.images.(str)=replace_field(data.raw.images.(str),...
 							'dat'			, cell_construct(filenames.(str),1,n_i_shots),...
 							'format'		, format, ...
+							'isfile'		, ones(1,n_i_shots), ...
 							'bin_index'		, [1:n_i_shots], ...
 							'IDtype'		, 'Image');
 			% Add the remaining info from cam_back
 			if isstruct(cam_back)
 				data.raw.images.(str)=replace_field(data.raw.images.(str),...
 							'background_dat'	, cell_construct(...
-												bgname(str,dataset,scan_step),...
+												bgpath(str,datasetstr,scan_step,Pathname),...
 												1,n_i_shots),...
 							'background_format'	, cell_construct('mat',1,n_i_shots));
 				names=fieldnames(cam_back.(str));
 				for i=1:size(names,1)
-					toadd=cam_back.(str).(names{i})
+					toadd=cam_back.(str).(names{i});
 					if iscell(toadd)
 						data.raw.images.(str).(names{i})=cell_construct(toadd,1,n_i_shots);
 					else
@@ -172,6 +199,7 @@ function out=add_raw(dat,UID,IDtype)
 	end
 end
 
-function out=bgname(str,set,step)
+function out=bgpath(str,set,step,basepath)
 	out=['Background_' str '_set' num2str(set) '_step' num2str(step) '.mat'];
+	out=fullfile(basepath,[num2str(set) '_files'],'raw','images','backgrounds',out);
 end
