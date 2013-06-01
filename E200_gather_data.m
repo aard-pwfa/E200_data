@@ -53,11 +53,10 @@ function data=E200_gather_data(path,varargin)
 	underscore_ind=strfind(str,'_');
 	% Extract number between underscores
 	datasetstr=str(underscore_ind(1)+1:underscore_ind(2)-1);
-
-	% basedataset=[param.experiment]
 	basedataset=[experimentstr '_' datasetstr];
-
-	create_file_tree(Pathname,experimentstr,datasetstr);
+	
+	pathstr=fullfile(Pathname,[basedataset '_files']);
+	create_file_tree(pathstr);
 
 	% Initialize data structure
 	data             = struct();
@@ -126,7 +125,7 @@ function data=E200_gather_data(path,varargin)
 
 		% Save these things to the struct
 		data.raw.scalars.step_num       = add_raw(e_scan_step,e_UID,'EPICS');
-		data.raw.scalars.dataset_number = add_raw(e_dataset, e_UID, 'EPICS');
+		data.raw.scalars.set_num = add_raw(e_dataset, e_UID, 'EPICS');
 
 		% Extract and save backgrounds if they exist(consistency)
 		if isstruct(cam_back)
