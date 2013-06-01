@@ -106,6 +106,7 @@ function data=E200_gather_data(path,varargin)
 
 		% Assume image list will be as long as requested
 		n_i_shots=param.n_shot;
+		i_scan_step=ones(1,n_i_shots)*scan_step;
 
 		% Generate epics-type UID
 		bool        = strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
@@ -150,12 +151,21 @@ function data=E200_gather_data(path,varargin)
 		format=cell_construct('bin',1,n_i_shots);
 		for i=1:size(param.cams,1)
 			str=param.cams{i,1};
+
+			% Load image headers and get UIDs
+			[temp,i_PID]=readImagesHeader([filenames.(str) '.header']);
+			option.IMAGE_PID=i_PID';
+			option.IMAGE_SCANSTEP=i_scan_step;
+			UIDs        = assign_UID(e_PID,e_scan_step,e_dataset,option);
+			i_UID = UIDs.image_UID;
+
 			data.raw.images.(str)=struct();
 			data.raw.images.(str)=replace_field(data.raw.images.(str),...
 							'dat'			, cell_construct(filenames.(str),1,n_i_shots),...
 							'format'		, format, ...
 							'isfile'		, ones(1,n_i_shots), ...
 							'bin_index'		, [1:n_i_shots], ...
+							'UID'			, i_UID, ...
 							'IDtype'		, 'Image');
 			% Add the remaining info from cam_back
 			if isstruct(cam_back)

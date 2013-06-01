@@ -23,10 +23,11 @@ function out = assign_UID(EPICS_PID,EPICS_SCANSTEP,EPICS_DATASET,varargin)
 % unique ID (UID). Assign UID to image and AIDA data.
 
 % Deconstruct optional_struct into variables
-if exist('optional_struct')
+if nargin==4
+	optional_struct=varargin{1};
 	str=fieldnames(optional_struct);
 	for i=1:size(str,1)
-		eval([str{i} '= optional_struct.(' str{i} ');']);
+		eval([str{i} '= optional_struct.' str{i} ';']);
 	end
 end
 
@@ -57,10 +58,9 @@ if exist('IMAGE_PID')
         k = find(i_hi < i_lo,1,'first');        
         % find image pulse IDs in EPICS pulse ID vector
         if isempty(j) && isempty(k)             % monotonic
-		display('hi');
             [discard,discard,ib] = intersect(IPID,EPID);
         else                                    % not monotonic
-            if discardisempty(k)
+            if ~isempty(k)
                 iid_lo = IPID(1:k);
                 iid_hi = IPID((k+1):end);
             else
@@ -69,7 +69,7 @@ if exist('IMAGE_PID')
             end
             [discard,discard,ib_lo] = intersect(iid_lo,EPID);
             [discard,discard,ib_hi] = intersect(iid_hi,EPID);
-            ib = [ib_lo; ib_hi];
+            ib = [ib_lo, ib_hi];
         end        
         % assign image UID
         image_UID = [image_UID; EUID(ib)];
