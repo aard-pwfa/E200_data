@@ -1,4 +1,4 @@
-function data=E200_convert_images(data)
+function data=E200_convert_images()
 	images=data.raw.images;
 	names=fieldnames(images);
 	% Loop over cameras
@@ -20,13 +20,16 @@ function data=E200_convert_images(data)
 					img=image_data(:,:,cam.bin_index(k));
 					[path,name,ext]=fileparts(cam.dat{k});
 					cam.dat{k}=fullfile(path,[names{i} '_' num2str(cam.UID(k)) '.mat']);
+					cam.format{k}='mat';
 					if exist(cam.dat{k})~=2
 						save(cam.dat{k},'img');
 					end
 				end
 			end
-
-			% delete([toread{j} *]);
+			% Delete old files
+			% delete([toread{j} '*']);
 		end
+		% Push changes back to data
+		data.raw.images.(names{i})=cam;
 	end
 end

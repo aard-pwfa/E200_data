@@ -1,8 +1,9 @@
 function data=E200_gather_data(path,varargin)
 	if nargin>1
-		scan_step=varargin{1};
+		options=varargin{1};
 	else
-		scan_step=1;
+		options.scan_step=1;
+		options.path_prefix='';
 	end
 
 	% Get path and filename
@@ -10,6 +11,13 @@ function data=E200_gather_data(path,varargin)
 	% path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
 	[Pathname,name,extension]=fileparts(path);
 	Filename=[name extension];
+
+	% Get root path
+	curpath=pwd;
+	cd(Pathname);
+	filepath=pwd;
+	cd(curpath);
+	rootpath=filepath(1:strfind(filepath,'/nas/')-1);
 
 	% Determine which file type is being used.
 	settype='none';
@@ -84,13 +92,14 @@ function data=E200_gather_data(path,varargin)
 	    case 'scan'
 	
 		n_steps=size(scan_info,2);
-
-		data=E200_gather_data(fullfile(Pathname,stepfiles(1).name),1);
+		options.scan_step=1;
+		data=E200_gather_data(fullfile(Pathname,stepfiles(1).name),options);
 		data=add_scan_info(data,scan_info(1));
 		for i=2:n_steps
 		% for i=2:2
 			steppath=fullfile(Pathname,stepfiles(i).name);
-			data_append=E200_gather_data(steppath,i);
+			options.scan_step=i;
+			data_append=E200_gather_data(steppath,options);
 			data_append=add_scan_info(data_append,scan_info(i));
 			
 			data=E200_concat(data,data_append);
@@ -106,12 +115,12 @@ function data=E200_gather_data(path,varargin)
 
 		% Assume image list will be as long as requested
 		n_i_shots=param.n_shot;
-		i_scan_step=ones(1,n_i_shots)*scan_step;
+		i_scan_step=ones(1,n_i_shots)*options.scan_step;
 
 		% Generate epics-type UID
 		bool        = strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
 		e_PID       = epics_data_mat(bool,:);
-		e_scan_step = ones(1,n_e_shots)*scan_step;
+		e_scan_step = ones(1,n_e_shots)*options.scan_step;
 		% setstr      = str2num(param.save_name(1:10));
 		dataset     = str2num(datasetstr);
 		e_dataset   = dataset * ones(1,n_e_shots);
@@ -136,7 +145,7 @@ function data=E200_gather_data(path,varargin)
 				% bgname=[camstr{i} '_set' num2str(dataset) '_step' num2str(scan_step) '.mat'];
 				% bg_name=bgname(camstr{i},dataset,scan_step);
 				% bgpath=fullfile(imgpath,bg_name);
-				bgpathstr=bgpath(experimentstr,camstr{i},dataset,scan_step,Pathname);
+				bgpathstr=bgpath(experimentstr,camstr{i},dataset,options.scan_step,Pathname);
 				% Save if backgrounds don't exist
 				if ~( exist(bgpathstr)==2 )
 					display('Saving background file...');
@@ -151,9 +160,8 @@ function data=E200_gather_data(path,varargin)
 		format=cell_construct('bin',1,n_i_shots);
 		for i=1:size(param.cams,1)
 			str=param.cams{i,1};
-
 			% Load image headers and get UIDs
-			[temp,i_PID]=readImagesHeader([filenames.(str) '.header']);
+			[temp,i_PID]=readImagesHeader([rootpath filenames.(str) '.header']);
 			option.IMAGE_PID=i_PID';
 			option.IMAGE_SCANSTEP=i_scan_step;
 			UIDs        = assign_UID(e_PID,e_scan_step,e_dataset,option);
@@ -161,7 +169,7 @@ function data=E200_gather_data(path,varargin)
 
 			data.raw.images.(str)=struct();
 			data.raw.images.(str)=replace_field(data.raw.images.(str),...
-							'dat'			, cell_construct(filenames.(str),1,n_i_shots),...
+							'dat'			, cell_construct([rootpath filenames.(str)],1,n_i_shots),...
 							'format'		, format, ...
 							'isfile'		, ones(1,n_i_shots), ...
 							'bin_index'		, [1:n_i_shots], ...
@@ -171,7 +179,7 @@ function data=E200_gather_data(path,varargin)
 			if isstruct(cam_back)
 				data.raw.images.(str)=replace_field(data.raw.images.(str),...
 							'background_dat'	, cell_construct(...
-												bgpath(experimentstr,str,datasetstr,scan_step,Pathname),...
+												bgpath(experimentstr,str,datasetstr,options.scan_step,Pathname),...
 												1,n_i_shots),...
 							'background_format'	, cell_construct('mat',1,n_i_shots));
 				names=fieldnames(cam_back.(str));
@@ -201,7 +209,9 @@ end
 
 function out=bgpath(experiment,imgname,set,step,basepath)
 	out=['Background_' imgname '_set' num2str(set) '_step' num2str(step) '.mat'];
-	out=fullfile(basepath,[experiment '_' num2str(set) '_files'],'raw','images','backgrounds',out);
+	out=fullfile(basepath,[experiment '_' num2str(set) '_files'],'raw','images',imgname,'backgrounds',out);
+	[outpath,name,ext]=fileparts(out);
+	[stat,msg,msgid]=mkdir(outpath);
 end
 
 function data=add_scan_info(data,scan_info)
