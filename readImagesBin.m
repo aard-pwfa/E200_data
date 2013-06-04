@@ -18,12 +18,3 @@ fprintf('Elapsed time for reading images: %.4f s\n', toc);
 
 
 end
-
-
-
-
-
-
-
-
-
