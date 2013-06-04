@@ -1,4 +1,4 @@
-function data=E200_gather_data(path,varargin)
+function data=E200_gather_data(pathstr,varargin)
 	if nargin>1
 		options=varargin{1};
 	else
@@ -9,15 +9,10 @@ function data=E200_gather_data(path,varargin)
 	% Get path and filename
 	% path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
 	% path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
-	[Pathname,name,extension]=fileparts(path);
+	[Pathname,name,extension]=fileparts(pathstr);
 	Filename=[name extension];
 
-	% Get root path
-	curpath=pwd;
-	cd(Pathname);
-	filepath=pwd;
-	cd(curpath);
-	rootpath=filepath(1:strfind(filepath,'/nas/')-1);
+	rootpath=get_rootpath(Pathname);
 
 	% Determine which file type is being used.
 	settype='none';
@@ -38,7 +33,7 @@ function data=E200_gather_data(path,varargin)
 	switch settype
 	case 'scan'
 	        % Load scan_info file
-	        load(path);
+	        load(pathstr);
 
 		% Find one step file
 		stepfiles=dir(fullfile(Pathname,'*_filenames.mat'));
@@ -50,7 +45,7 @@ function data=E200_gather_data(path,varargin)
 	case 'daq'
 	        % Load file
 	        load(fullfile(Pathname,[Filename(1:end-14) '.mat']));
-	        load(path);
+	        load(pathstr);
 	end
 	% param now exists!
 	experimentstr=param.experiment;
@@ -82,7 +77,7 @@ function data=E200_gather_data(path,varargin)
 
 
 	% Save some info for development purposes
-	data.user.dev.path=path;
+	data.user.dev.path=pathstr;
 	data.user.dev.Pathname=Pathname;
 	data.user.dev.Filename=Filename;
 	
