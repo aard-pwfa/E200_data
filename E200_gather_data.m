@@ -63,7 +63,7 @@ function data=E200_gather_data(pathstr,varargin)
 
 	% Initialize data structure
 	data             = struct();
-	data.Version = 0.1;
+	data.Version = 0.2;
 
 	data.raw         = struct();
 	data.raw.images  = struct();
