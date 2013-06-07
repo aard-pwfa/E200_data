@@ -25,11 +25,3 @@ function data2=copy_bg(data1,data2)
 		end
 	end
 end
-
-function data=take_first(data)
-	if iscell(data)
-		data=data{1};
-	else
-		data=data(1);
-	end
-end
