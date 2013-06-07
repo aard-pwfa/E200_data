@@ -6,11 +6,13 @@ function data=E200_gather_data(pathstr,varargin)
 		options.path_prefix='';
 	end
 
-	% Get path and filename
-	% path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
-	% path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
+	% % Get path and filename
+	% % path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
+	% % path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
+	pathstr=get_valid_filename(pathstr);
 	[Pathname,name,extension]=fileparts(pathstr);
 	Filename=[name extension];
+
 
 	rootpath=get_rootpath(Pathname);
 
