@@ -9,6 +9,9 @@ function data=E200_load_data(filename)
 		pathstr=filename;
 		filename=get_valid_filename(filename);
 		[pathstr,name,ext]=fileparts(filename);
+	case 0
+		filename=get_valid_filename(filename);
+		[pathstr,name,ext]=fileparts(filename);
 	otherwise
 		error('File does not exist.');
 	end
