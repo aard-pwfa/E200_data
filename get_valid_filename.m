@@ -8,7 +8,7 @@ function pathstr=get_valid_filename(pathstr)
 			pathstr=fullfile(prefix,pathstr);
 			% If file exists, try again
 			if exist(pathstr)
-				pathstr=get_valid_filename(pathstr)
+				pathstr=get_valid_filename(pathstr);
 			% If file doesn't exist, offer to change prefix.
 			else
 				answers={'Change prefix for this machine.','Locate file'};
