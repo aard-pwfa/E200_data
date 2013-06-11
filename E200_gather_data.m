@@ -161,8 +161,16 @@ function data=E200_gather_data(pathstr,varargin)
 				end
 				cam_back.(camstr{i})=rmfield(cam_back.(camstr{i}),'img');
 			end
-		end
-
+        end
+        
+        % Extract E200_state and facet_state if they exist(consistency)
+        if isstruct(E200_state)
+            data.raw.metadata.E200_state=add_raw(cell_construct(E200_state,1,n_e_shots), e_UID,'EPICS');
+        end
+        if isstruct(facet_state)
+            data.raw.metadata.facet_state=add_raw(cell_construct(facet_state,1,n_e_shots), e_UID,'EPICS');
+        end
+        
 		% Initialize data.raw.images.(name)
 		format=cell_construct('bin',1,n_i_shots);
 		for i=1:size(param.cams,1)
