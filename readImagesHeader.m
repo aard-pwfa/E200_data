@@ -1,4 +1,7 @@
 function [cam_name,pulse_id, C]=readImagesHeader(path)
+	if exist(path)~=2
+		error(['File doesn''t exist: ' path]);
+	end
 	% tic;
 	% display(path);
 	fHEAD   = fopen(path);

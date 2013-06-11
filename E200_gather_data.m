@@ -1,4 +1,14 @@
 function data=E200_gather_data(pathstr,varargin)
+% E200_GATHER_DATA Gathers data from saved .mat files into one structure in memory
+%   DATA = E200_GATHER_DATA(PATHSTR) gathers data from PATHSTR.
+%   DATA = E200_GATHER_DATA(PATHSTR,SCAN) gathers data from PATHSTR and assigns it a scan number of SCAN.
+%
+% Inputs:
+%	PATHSTR:	Absolute path to the file to be loaded.  Must be *scan_info.mat or *filenames.mat.
+%
+% Outputs:
+%	DATA:		E200 data structure
+
 	if nargin>1
 		options=varargin{1};
 	else
@@ -24,18 +34,18 @@ function data=E200_gather_data(pathstr,varargin)
 		for searchstr=searchlist
 			if ~isempty(strfind(Filename,searchstr{1}{1}))
 				settype=searchstr{1}{2};
-	        	end
+			end
 		end
 	else
-	    error('File not valid.');
+		error('File not valid.');
 	end
 
 	% Get param so I can get experiment so I can initialize paths
 	% Also, load files needed later
 	switch settype
 	case 'scan'
-	        % Load scan_info file
-	        load(pathstr);
+		% Load scan_info file
+		load(pathstr);
 
 		% Find one step file
 		stepfiles=dir(fullfile(Pathname,'*_filenames.mat'));
@@ -45,9 +55,9 @@ function data=E200_gather_data(pathstr,varargin)
 		load([steppath(1:end-14) '.mat']);
 
 	case 'daq'
-	        % Load file
-	        load(fullfile(Pathname,[Filename(1:end-14) '.mat']));
-	        load(pathstr);
+		% Load file
+		load(fullfile(Pathname,[Filename(1:end-14) '.mat']));
+		load(pathstr);
 	end
 	% param now exists!
 	experimentstr=param.experiment;
@@ -64,8 +74,8 @@ function data=E200_gather_data(pathstr,varargin)
 	create_file_tree(pathstr);
 
 	% Initialize data structure
-	data             = struct();
-	data.Version = 0.2;
+	data         = struct();
+	data.VersionInfo = struct('Version',0.2);
 
 	data.raw         = struct();
 	data.raw.images  = struct();
@@ -79,14 +89,14 @@ function data=E200_gather_data(pathstr,varargin)
 
 
 	% Save some info for development purposes
-	data.user.dev.path=pathstr;
-	data.user.dev.Pathname=Pathname;
-	data.user.dev.Filename=Filename;
+	data.user.dev.path     = pathstr;
+	data.user.dev.Pathname = Pathname;
+	data.user.dev.Filename = Filename;
 	
 	
 	% Type-specific Initialization
 	switch settype
-	    case 'scan'
+	case 'scan'
 	
 		n_steps=size(scan_info,2);
 		options.scan_step=1;
@@ -104,10 +114,10 @@ function data=E200_gather_data(pathstr,varargin)
 		data.user.dev.stepfiles=stepfiles;
 		data.user.dev.scan_info=scan_info;
 
-	    case 'daq'
+	case 'daq'
 
 		% Convert epics_data to a list
-		n_e_shots      = size(epics_data,2);
+		n_e_shots	  = size(epics_data,2);
 		epics_data_mat = cell2mat(squeeze(struct2cell(epics_data)));
 
 		% Assume image list will be as long as requested
@@ -115,14 +125,14 @@ function data=E200_gather_data(pathstr,varargin)
 		i_scan_step=ones(1,n_i_shots)*options.scan_step;
 
 		% Generate epics-type UID
-		bool        = strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
-		e_PID       = epics_data_mat(bool,:);
+		bool		= strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
+		e_PID	   = epics_data_mat(bool,:);
 		e_scan_step = ones(1,n_e_shots)*options.scan_step;
-		% setstr      = str2num(param.save_name(1:10));
-		dataset     = str2num(datasetstr);
+		% setstr	  = str2num(param.save_name(1:10));
+		dataset	 = str2num(datasetstr);
 		e_dataset   = dataset * ones(1,n_e_shots);
-		UIDs        = assign_UID(e_PID,e_scan_step,e_dataset);
-		e_UID       = UIDs.epics_UID;
+		UIDs		= assign_UID(e_PID,e_scan_step,e_dataset);
+		e_UID	   = UIDs.epics_UID;
 
 		% Put in epics_data
 		names=fieldnames(epics_data);
@@ -131,7 +141,7 @@ function data=E200_gather_data(pathstr,varargin)
 		end
 
 		% Save these things to the struct
-		data.raw.scalars.step_num       = add_raw(e_scan_step,e_UID,'EPICS');
+		data.raw.scalars.step_num	   = add_raw(e_scan_step,e_UID,'EPICS');
 		data.raw.scalars.set_num = add_raw(e_dataset, e_UID, 'EPICS');
 
 		% Extract and save backgrounds if they exist(consistency)
@@ -151,16 +161,16 @@ function data=E200_gather_data(pathstr,varargin)
 				end
 				cam_back.(camstr{i})=rmfield(cam_back.(camstr{i}),'img');
 			end
-        end
-        
-        % Extract E200_state and facet_state if they exist(consistency)
-        if isstruct(E200_state)
-            data.raw.metadata.E200_state=add_raw(cell_construct(E200_state,1,n_e_shots), e_UID,'EPICS');
-        end
-        if isstruct(facet_state)
-            data.raw.metadata.facet_state=add_raw(cell_construct(facet_state,1,n_e_shots), e_UID,'EPICS');
-        end
-        
+		end
+
+		% Extract E200_state and facet_state if they exist(consistency)
+		if isstruct(E200_state)
+		    data.raw.metadata.E200_state=add_raw(cell_construct(E200_state,1,n_e_shots), e_UID,'EPICS');
+		end
+		if isstruct(facet_state)
+		    data.raw.metadata.facet_state=add_raw(cell_construct(facet_state,1,n_e_shots), e_UID,'EPICS');
+		end
+
 		% Initialize data.raw.images.(name)
 		format=cell_construct('bin',1,n_i_shots);
 		for i=1:size(param.cams,1)
@@ -169,12 +179,12 @@ function data=E200_gather_data(pathstr,varargin)
 			[temp,i_PID]=readImagesHeader([rootpath filenames.(str) '.header']);
 			option.IMAGE_PID=i_PID';
 			option.IMAGE_SCANSTEP=i_scan_step;
-			UIDs        = assign_UID(e_PID,e_scan_step,e_dataset,option);
+			UIDs		= assign_UID(e_PID,e_scan_step,e_dataset,option);
 			i_UID = UIDs.image_UID;
 
 			data.raw.images.(str)=struct();
 			data.raw.images.(str)=replace_field(data.raw.images.(str),...
-							'dat'			, cell_construct([rootpath filenames.(str)],1,n_i_shots),...
+							'dat'			, cell_construct(filenames.(str),1,n_i_shots),...
 							'format'		, format, ...
 							'isfile'		, ones(1,n_i_shots), ...
 							'bin_index'		, [1:n_i_shots], ...
@@ -202,9 +212,9 @@ function data=E200_gather_data(pathstr,varargin)
 
 		% Add metadata
 		data.raw.metadata.param=add_raw(cell_construct(param,1,n_e_shots), e_UID,'EPICS');
-	        
-	    case 'none'
-		    error('Filetype not understood.');
+		
+	case 'none'
+			error('Filetype not understood.');
 	end
 	
 	% All file initializations

@@ -13,7 +13,6 @@ function data=save_data(data,filepath,relative)
 	% Create local data paths
 	create_file_tree(datapath);
 
-
 	% Copy all files out of data into appropriate location and change paths
 	data=recurse_save_file(data,datapath,relative);
 
@@ -64,6 +63,7 @@ function struct=recurse_save_file(struct,path,relative)
 					end
 				end
 			end
+
 		% It is a struct, no isfile: recurse
 		else
 			for i=1:size(str,1)
@@ -90,5 +90,8 @@ function newpath=strip_if_relative(newpath,relative)
 		inds=regexp(newpath,'/');
 		ind=inds(ind>inds);
 		newpath=newpath(ind(end)+1:end);
+	else
+		ind=regexp(newpath,'processed_data');
+		newpath=newpath(ind:end);
 	end
 end
