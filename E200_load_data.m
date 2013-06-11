@@ -38,8 +38,8 @@ function data=E200_load_data(filename)
 	newfile=fullfile(newpath,[name '_processed' ext]);
 
 	% If the file doesn't exist, create it.
-	% if exist(newfile)~=2 && exist(newfile)~=7
-	if true
+	if exist(newfile)~=2 && exist(newfile)~=7
+	% if true
 		data=E200_gather_data(filename);
 
 		savepath=fullfile(newpath,[name '_processed_files']);
@@ -53,5 +53,5 @@ function data=E200_load_data(filename)
 
 	end
 	
-	% load(newfile);
+	load(newfile);
 end

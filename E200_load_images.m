@@ -17,7 +17,7 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	else
 		remote=true;
 	end
-	display('hi');
+
 	% Get prefix - if not remote, there is no prefix.
 	if remote
 		prefix=get_remoteprefix();
