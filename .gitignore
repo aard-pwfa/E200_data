@@ -3,3 +3,4 @@ java.opts
 *.swo
 *~
 *.mat
+!device_list.mat

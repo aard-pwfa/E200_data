@@ -103,7 +103,6 @@ if exist('AIDA_PID')
             else
                 aid_lo = [];
                 aid_hi = APID;
-                %k = 0;
             end
             [discard,discard,ab_lo] = intersect(aid_lo,EPID);
             [discard,discard,ab_hi] = intersect(aid_hi,EPID);
