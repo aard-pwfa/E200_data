@@ -144,6 +144,11 @@ function data=E200_gather_data(pathstr,varargin)
 		data.raw.scalars.step_num	   = add_raw(e_scan_step,e_UID,'EPICS');
 		data.raw.scalars.set_num = add_raw(e_dataset, e_UID, 'EPICS');
 
+        % add AIDA data
+        if param.aida_daq
+            data = add_aida(data,aida_data,options);
+        end
+        
 		% Extract and save backgrounds if they exist(consistency)
 		if isstruct(cam_back)
 			% Save backgrounds to file
@@ -189,6 +194,7 @@ function data=E200_gather_data(pathstr,varargin)
 							'isfile'		, ones(1,n_i_shots), ...
 							'bin_index'		, [1:n_i_shots], ...
 							'UID'			, i_UID, ...
+                            'PID'           , i_PID',...
 							'IDtype'		, 'Image');
 			% Add the remaining info from cam_back
 			if isstruct(cam_back)
@@ -232,6 +238,11 @@ end
 function data=add_scan_info(data,scan_info)
 	UID=data.raw.scalars.step_num.UID;
 	size_UID = size(UID,2);
-	data=add_step_info(data,scan_info.Control_PV_name{1},scan_info.Control_PV);
+    if iscell(scan_info(1).Control_PV_name)
+        Control_PV_name = scan_info(1).Control_PV_name;
+    else
+        Control_PV_name = {scan_info(1).Control_PV_name};
+    end
+	data=add_step_info(data,Control_PV_name,scan_info.Control_PV);
 	data.raw.metadata.scan_info=add_raw(cell_construct(scan_info,1,size_UID),UID,'EPICS');
 end
