@@ -1,4 +1,4 @@
-function data=E200_load_data(filename)
+function data=E200_load_data(pathstr)
 % E200_LOAD_DATA  Convert original, binary data into a new file format and load into memory
 %   DATA = E200_LOAD_DATA(FILENAME) converts FILENAME 
 %   into the new file format and loads it into memory.
@@ -10,48 +10,35 @@ function data=E200_load_data(filename)
 % Outputs:
 %	DATA:		E200 data structure
 
-	% Extract the destination path string
-	data=struct();
-	switch exist(filename)
-	case 2
-		% Get the directory of the filename
-		[pathstr,name,ext]=fileparts(filename);
-	case 7
-		% The filename is already a directory
-		pathstr=filename;
-		filename=get_valid_filename(filename);
-		[pathstr,name,ext]=fileparts(filename);
-	case 0
-		filename=get_valid_filename(filename);
-		[pathstr,name,ext]=fileparts(filename);
-	otherwise
-		error('File does not exist.');
-	end
-	% Pathstr example: /Volumes/PWFA_4big/nas/nas-li20-pm01/E200/2013/20130514/E200_11145
+	% Get valid parts of filename to use
+	[dir_beg,dir_mid,filename]=get_valid_filename(pathstr);
+	
+	% Full path to file to load
+	loadpath=fullfile(dir_beg,dir_mid,filename);
 
-	% Put new files in processed_data instead of nas
-	% newpath example: /Volumes/PWFA_4big/processed_data/E200/2013/20130514/E200_11145
-	newpath=regexprep(pathstr,'nas/nas-li20-pm0.','processed_data');
+	% Split filename into root, extension
+	[discard,filename_rt,filename_ext]=fileparts(filename);
 
-	% New file is newpath/(name)_processed.(ext)
-	% newfile example: /Volumes/PWFA_4big/processed_data/E200/2013/20130514/E200_11145_processed
-	newfile=fullfile(newpath,[name '_processed' ext]);
+	% Processed file info
+	processed_file_dir = fullfile(dir_beg,dir_mid);
+	processed_file_dir = regexprep(processed_file_dir,'nas/nas-li20-pm0.','processed_data');
+	processed_file_path=fullfile(processed_file_dir,[filename_rt '_processed' filename_ext]);
 
 	% If the file doesn't exist, create it.
-	if exist(newfile)~=2 && exist(newfile)~=7
-	% if true
-		data=E200_gather_data(filename);
+	if exist(processed_file_path)~=2 && exist(processed_file_path)~=7
+		% Path to save final mat files
+		savepath=fullfile(processed_file_dir,[filename_rt '_processed_files']);
 
-		savepath=fullfile(newpath,[name '_processed_files']);
+		data=E200_gather_data(loadpath);
+
 		data=E200_convert_images(data,savepath);
 
 		% Info that this comes from a HDD
 		data.VersionInfo.remotefiles.dat=true;
 		data.VersionInfo.remotefiles.comment = 'Indicates whether files are stored on a remote disk (and getpref(''FACET_data'',''prefix'') should be used.';
 		
-		data=save_data(data,newfile,false);
-
+		data=save_data(data,processed_file_path,false);
 	end
 	
-	load(newfile);
+	load(processed_file_path);
 end

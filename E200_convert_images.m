@@ -33,7 +33,7 @@ function data=E200_convert_images(data,savepath)
 					if exist(savethis)~=2
 						[outpath,thisname,ext]=fileparts(savethis);
 						[stat,msg,msgid]=mkdir(outpath);
-						display('');
+						display(sprintf('\n'));
 						display('Saving...');
 						display(['Filename: ' thisname ext]);
 						display(['Path: ' outpath]);

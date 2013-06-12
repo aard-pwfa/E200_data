@@ -4,7 +4,9 @@ function bg_sub()
 
 	% Path to the dataset I want.
 	% Note that it doesn't need the prefix to the location of /nas anymore!
-	path='/nas/nas-li20-pm01/E200/2013/20130428/E200_10794';
+	% path='/nas/nas-li20-pm01/E200/2013/20130428/E200_10794';
+	% path='/nas/nas-li20-pm01/E200/2013/20130428/E200_10836';
+	path='nas/nas-li20-pm01/E200/2013/20130514/E200_11159';
 	
 	% Load this data.
 	data=E200_load_data(path);
@@ -13,7 +15,7 @@ function bg_sub()
 	imgstruct=data.raw.images.YAG;
 
 	% I want to load only images from the 2nd step
-	bool1=(data.raw.scalars.step_num.dat==2);
+	bool1=(data.raw.scalars.step_num.dat==1);
 
 	% I want the UIDs of the 2nd step
 	wanted_UIDs = data.raw.images.YAG.UID(bool1);
@@ -27,7 +29,7 @@ function bg_sub()
 	tic;
 	[img,bg]=E200_load_images(imgstruct,wanted_UIDs,data);
 	toc;
-	display('');
+	display(sprintf('\n'));
 	
 	% Loop over my images
 	% Note: only show first 5.

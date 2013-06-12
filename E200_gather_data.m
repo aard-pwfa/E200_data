@@ -19,9 +19,8 @@ function data=E200_gather_data(pathstr,varargin)
 	% % Get path and filename
 	% % path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
 	% % path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
-	pathstr=get_valid_filename(pathstr);
-	[Pathname,name,extension]=fileparts(pathstr);
-	Filename=[name extension];
+	[dir_beg,dir_mid,Filename]=get_valid_filename(pathstr);
+	Pathname=fullfile(dir_beg,dir_mid);
 
 
 	rootpath=get_rootpath(Pathname);
