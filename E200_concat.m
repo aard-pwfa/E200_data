@@ -16,7 +16,7 @@ function data2=copy_bg(data1,data2)
 		names=fieldnames(data1.raw.images.(camstr{i}));
 
 		% Only copy the fields that don't match standard things:
-		standard_raw_fields={'dat','format','bin_index','IDtype','UID'};
+		standard_raw_fields={'dat','format','bin_index','IDtype','UID','PID'};
 		for j=1:size(names,1)
 			if sum(strcmp(names{j},standard_raw_fields))==0
 				% Only copy the appropriate number of shots
