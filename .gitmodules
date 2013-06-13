@@ -1,0 +1,3 @@
+[submodule "analysis_code/joelfred"]
+	path = analysis_code/joelfred
+	url = git@github.com:joelfrederico/E200_Analysis_Supermodule.git

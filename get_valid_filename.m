@@ -13,9 +13,9 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr)
 			% Appending the prefix worked
 			if ~exist(pathstr)
 				% Ask if the user wants to fix the problem
-				answers={'Change prefix for this machine.','Locate file'};
+				answers={'Change prefix for this machine.','Locate file','Try again'};
 				button='';
-				button=questdlg(sprintf(['File doesn''t exist:\n\n' pathstr]),'File Doesn''t Exist',answers{1},answers{2},answers{1});
+				button=questdlg(sprintf(['File doesn''t exist:\n\n' pathstr '\n\n(External drive may not be mounted.)\n']),'File Doesn''t Exist',answers{1},answers{2},answers{3},answers{1});
 				if strcmp(button,'')
 					error('No valid option selected.');
 				end
@@ -32,6 +32,8 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr)
 				% Locate file manually
 				case answers{2}
 					pathstr=locate_file(prefix,answers{2});
+				% Modifies nothing - will try same settings again.
+				case answers{3}
 				end
 			end
 		% Prefix isn't defined
