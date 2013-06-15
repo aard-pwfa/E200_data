@@ -3,3 +3,4 @@ java.opts
 *.swo
 *~
 *.mat
+.DS_Store
