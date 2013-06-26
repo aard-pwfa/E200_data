@@ -3,13 +3,13 @@ function data_new = E200_merge(data_src,data_dest)
 	merge_compatible(data_src,data_dest);
 
 	% Recursively add on fields in everything but raw
-	data_new = add_fields(data_src,data_dest)
+	data_new = add_fields_main(data_src,data_dest);
 
 end
 
 function merge_compatible(data_src,data_dest)
 	% Test version
-	if data_src.VersionInfo.Version ~= data_dest.VersonInfo.Version
+	if data_src.VersionInfo.Version ~= data_dest.VersionInfo.Version
 		error('Data structures are not the same version.');
 	end
 end
@@ -22,7 +22,7 @@ function data_dest=add_fields_main(data_src,data_dest)
 	no_overwrite_fields={'raw'};
 
 	% Get all fields
-	copy_fields=fieldnames(data)
+	copy_fields=fieldnames(data_src);
 
 	% Iterate over fields
 	for i=1:size(copy_fields,1)
@@ -31,6 +31,7 @@ function data_dest=add_fields_main(data_src,data_dest)
 		if sum(strcmp(copystr,ignorefields))==0
 			% Overwrite these
 			if sum(strcmp(copystr,no_overwrite_fields))==0
+				% overwrite_bool=true;
 				overwrite_bool=true;
 			% Don't overwrite these
 			else
@@ -42,8 +43,10 @@ function data_dest=add_fields_main(data_src,data_dest)
 	end
 end
 
-function dest=copy_recurse(src,dest,overwrite_bool)
+function [dest,diff]=copy_recurse(src,dest,overwrite_bool)
 	% Not tip of tree
+	% display(overwrite_bool)
+	% overwrite_bool
 	if isstruct(src)
 		% Compare.  If equal, move on.
 		if isequaln(src,dest)
@@ -62,7 +65,7 @@ function dest=copy_recurse(src,dest,overwrite_bool)
 				bool=strcmp(namestr,fieldstr_dest);
 				% If name match is found, recurse.
 				if sum(bool)==1
-					dest.(namestr)=copy_recurse(sub_src,dest.(namestr));
+					dest.(namestr)=copy_recurse(sub_src,dest.(namestr),overwrite_bool);
 				% If name match isn't found, copy.
 				else
 					dest.(namestr)=sub_src;
@@ -70,14 +73,22 @@ function dest=copy_recurse(src,dest,overwrite_bool)
 			end
 		end
 	% Tip of tree: cell
-	elseif iscell(src)
+	elseif iscell(src) || isnumeric(src) || ischar(src)
 		% Compare.  If equal, move on.
 		if isequaln(src,dest)
 			return;
 		% Cells not equal.
-		elseif 
-
-
+		else
+			if overwrite_bool
+				% overwrite_bool
+				warning('Overwriting data...');
+				dest=src;
+			else
+				error('Requested to overwrite disallowed field. Check in data.raw and data.VersionInfo.');
+			end
+		end
+	else
+		error('Data type not handled.');
 	end
 end
 
