@@ -3,7 +3,8 @@ function data=E200_convert_images(data,savepath)
 	images=data.raw.images;
 	names=fieldnames(images);
 	
-	prefix=getpref('FACET_data','prefix');
+	% prefix=getpref('FACET_data','prefix');
+	prefix=get_remoteprefix();
 	% Loop over cameras
 	for i=1:size(names,1)
 		cam=images.(names{i});

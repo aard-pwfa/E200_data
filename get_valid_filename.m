@@ -8,7 +8,8 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr)
 		% Check if prefix is defined
 		if ispref('FACET_data','prefix')
 			% Append prefix
-			prefix=getpref('FACET_data','prefix');
+			% prefix=getpref('FACET_data','prefix');
+			prefix=get_remoteprefix();
 			pathstr=fullfile(prefix,pathstr);
 			% Appending the prefix worked
 			if ~exist(pathstr)
