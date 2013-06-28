@@ -39,6 +39,7 @@ function data=E200_gather_data(pathstr,varargin)
 		error('File not valid.');
 	end
 
+	display(settype)
 	% Get param so I can get experiment so I can initialize paths
 	% Also, load files needed later
 	switch settype
@@ -110,8 +111,10 @@ function data=E200_gather_data(pathstr,varargin)
 			
 			data=E200_concat(data,data_append);
 		end
+		display('here')
 		data.user.dev.stepfiles=stepfiles;
 		data.user.dev.scan_info=scan_info;
+		data.raw.metadata.scan_info=scan_info;
 
 	case 'daq'
 
@@ -143,10 +146,10 @@ function data=E200_gather_data(pathstr,varargin)
 		data.raw.scalars.step_num	   = add_raw(e_scan_step,e_UID,'EPICS');
 		data.raw.scalars.set_num = add_raw(e_dataset, e_UID, 'EPICS');
 
-        % add AIDA data
-        if param.aida_daq
-            data = add_aida(data,aida_data,options);
-        end
+		% add AIDA data
+		if param.aida_daq
+		    data = add_aida(data,aida_data,options);
+		end
         
 		% Extract and save backgrounds if they exist(consistency)
 		if isstruct(cam_back)
@@ -224,6 +227,8 @@ function data=E200_gather_data(pathstr,varargin)
 	
 	% All file initializations
 	if ~strcmp(settype,'none')
+		% Change to correct settype.
+		data.raw.metadata.settype=settype;
 	end
 end
 

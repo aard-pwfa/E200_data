@@ -26,19 +26,46 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	end
 
 	% Initialize cell arrays
-	imgs={};
+	imgs=cell(1,size(UID,2));
+	bin_to_load=cell(1,size(UID,2));
 	imgs_bg={};
 
 	% Find and load each UID given.
-	for i=UID
-		bool=(imgstruct.UID==i);
-		load(fullfile(prefix,imgstruct.dat{bool}));
-		imgs=[imgs {img}];
+	for i=1:size(UID,2)
+		bool=(imgstruct.UID==UID(i));
+		% Load what we can - not necessarily in order!
+		switch imgstruct.format{bool}
+		case 'mat'
+			load(fullfile(prefix,imgstruct.dat{bool}));
+			imgs{i}=img;
+		case 'bin'
+			% Shouldn't load right away.  Instead, build list of bin files to load
+			bin_to_load{i}=fullfile(prefix,imgstruct.dat{bool});
+			imgs{i}=bin_to_load{i};
+		end
+		% If backgrounds are requested, load backgrounds
 		if nargout==2
 			load(fullfile(prefix,imgstruct.background_dat{bool}));
 			imgs_bg= [imgs_bg {img}];
 		end
 	end
 
-end
+	% Load binaries here, prevent redundancy
+	% Read each file in
+	bin_to_load=unique(bin_to_load);
+	for j=1:size(bin_to_load,2)
+		% Read file
+		[image_data, cam_name, pulse_id] = readImagesBin(bin_to_load{j});
 
+		% Get boolean for all shots matching file
+		bool_shots=strcmp(bin_to_load{j},imgs);
+
+		% Operate on all shots matching file
+		for k=1:size(bool_shots,2)
+			if bool_shots(k)
+				% Replace filenames with data
+				imgs{k}=image_data(:,:,imgstruct.bin_index(k));
+			end
+		end
+	end
+end

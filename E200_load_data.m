@@ -48,6 +48,7 @@ function data=E200_load_data(pathstr)
 		load(processed_file_path);
 	% This is for facet-srv20
 	else
+		display('hi')
 		data=E200_gather_data(loadpath);
 	end
 
