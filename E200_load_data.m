@@ -10,6 +10,7 @@ function data=E200_load_data(pathstr)
 % Outputs:
 %	DATA:		E200 data structure
 
+
 	% Get valid parts of filename to use
 	[dir_beg,dir_mid,filename]=get_valid_filename(pathstr);
 	
@@ -25,24 +26,39 @@ function data=E200_load_data(pathstr)
 	processed_file_dir = regexprep(processed_file_dir,'nas/nas-li20-pm0.','processed_data');
 	processed_file_path=fullfile(processed_file_dir,filename_final);
 
-	% If the file doesn't exist, create it.
-	if exist(processed_file_path)~=2 && exist(processed_file_path)~=7
-		% Path to save final mat files
-		savepath=fullfile(processed_file_dir,[filename_rt '_processed_files']);
-
-		data=E200_gather_data(loadpath);
-
-		data=E200_convert_images(data,savepath);
-
-		% Info that this comes from a HDD
-		data.VersionInfo.remotefiles.dat=true;
-		data.VersionInfo.remotefiles.comment = 'Indicates whether files are stored on a remote disk (and getpref(''FACET_data'',''prefix'') should be used.';
-		data.VersionInfo.originalfilename=filename_final;
-		data.VersionInfo.originalpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
-		data.VersionInfo.loadrequest=pathstr;
+	% Get the hostname of the computer.
+	[status,hostname]=unix('hostname');
+	hostname = strrep(hostname,sprintf('\n'),'');
+	isfs20=strcmp(hostname,'facet-srv20');
+	
+	% Run certain things depending on which machine you're on.
+	% facet-srv20 gets special treatment: no files saved!
+	if ~isfs20
+		% If the file doesn't exist, create it.
+		if exist(processed_file_path)~=2 && exist(processed_file_path)~=7
+			% Path to save final mat files
+			savepath=fullfile(processed_file_dir,[filename_rt '_processed_files'])
+	
+			data=E200_gather_data(loadpath);
+	
+			data=E200_convert_images(data,savepath);
+	
+		end
 		
+		load(processed_file_path);
+	% This is for facet-srv20
+	else
+		data=E200_gather_data(loadpath);
+	end
+
+	% Info that this comes from a HDD
+	data.VersionInfo.remotefiles.dat=true;
+	data.VersionInfo.remotefiles.comment = 'Indicates whether files are stored on a remote disk (and getpref(''FACET_data'',''prefix'') should be used.';
+	data.VersionInfo.originalfilename=filename_final;
+	data.VersionInfo.originalpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
+	data.VersionInfo.loadrequest=pathstr;
+	
+	if ~isfs20
 		data=save_data(data,processed_file_path,false);
 	end
-	
-	load(processed_file_path);
 end

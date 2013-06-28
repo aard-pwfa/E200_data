@@ -11,14 +11,15 @@ function data=E200_convert_images(data,savepath)
 		% Get boolean for all binaries
 		bool_bin=strcmp('bin',cam.format);
 		% Get all unique file names for binaries
-		toread=fullfile(prefix,unique(cam.dat(bool_bin)));
+		unique_binaries=unique(cam.dat(bool_bin));
+		toread=fullfile_cell(prefix,unique_binaries);
 		% Read each file in
 		for j=1:size(toread,2)
 			% Read file
 			[image_data, cam_name, pulse_id] = readImagesBin(toread{j});
 
 			% Get boolean for all shots matching file
-			bool_shots=strcmp(toread{j},fullfile(prefix,cam.dat));
+			bool_shots=strcmp(toread{j},fullfile_cell(prefix,cam.dat));
 
 			for k=1:size(bool_shots,2)
 				if bool_shots(k)
