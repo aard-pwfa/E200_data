@@ -26,32 +26,37 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	end
 
 	% Initialize cell arrays
-	imgs=cell(1,size(UID,2));
-	bin_to_load=cell(1,size(UID,2));
+	imgs=cell(1,size(imgstruct.UID,2));
+	% bin_to_load=cell(1,size(UID,2));
+	bin_to_load={};
 	imgs_bg={};
 
 	% Find and load each UID given.
 	for i=1:size(UID,2)
 		bool=(imgstruct.UID==UID(i));
 		% Load what we can - not necessarily in order!
-		switch imgstruct.format{bool}
-		case 'mat'
-			load(fullfile(prefix,imgstruct.dat{bool}));
-			imgs{i}=img;
-		case 'bin'
-			% Shouldn't load right away.  Instead, build list of bin files to load
-			bin_to_load{i}=fullfile(prefix,imgstruct.dat{bool});
-			imgs{i}=bin_to_load{i};
-		end
-		% If backgrounds are requested, load backgrounds
-		if nargout==2
-			load(fullfile(prefix,imgstruct.background_dat{bool}));
-			imgs_bg= [imgs_bg {img}];
+		if sum(bool)>0
+			switch imgstruct.format{bool}
+			case 'mat'
+				load(fullfile(prefix,imgstruct.dat{bool}));
+				imgs{i}=img;
+			case 'bin'
+				% Shouldn't load right away.  Instead, build list of bin files to load
+				loadstr=fullfile(prefix,imgstruct.dat{bool});
+				imgs{i}=loadstr;
+				bin_to_load=[bin_to_load, {loadstr}];
+			end
+			% If backgrounds are requested, load backgrounds
+			if nargout==2
+				load(fullfile(prefix,imgstruct.background_dat{bool}));
+				imgs_bg= [imgs_bg {img}];
+			end
 		end
 	end
 
 	% Load binaries here, prevent redundancy
 	% Read each file in
+	display(bin_to_load);
 	bin_to_load=unique(bin_to_load);
 	for j=1:size(bin_to_load,2)
 		% Read file
