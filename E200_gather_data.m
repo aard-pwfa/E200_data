@@ -124,6 +124,13 @@ function data=E200_gather_data(pathstr,varargin)
 
 		% Assume image list will be as long as requested
 		n_i_shots=param.n_shot;
+		% Check that number of shots saved is equal to requested.  Adjust if necessary.
+		[temp,i_PID]=readImagesHeader([rootpath filenames.(param.cams{1,1}) '.header']);
+		n_i_shots_saved=length(i_PID);
+		if n_i_shots~=n_i_shots_saved
+			warndlg(['Shots requested: ' num2str(n_i_shots) ' Shots saved: ' num2str(n_i_shots_saved) ] );
+			n_i_shots=n_i_shots_saved;
+		end
 		i_scan_step=ones(1,n_i_shots)*options.scan_step;
 
 		% Generate epics-type UID
@@ -180,8 +187,8 @@ function data=E200_gather_data(pathstr,varargin)
 
 		% Initialize data.raw.images.(name)
 		format=cell_construct('bin',1,n_i_shots);
-		for i=1:size(param.cams,1)
-			str=param.cams{i,1};
+		for i=1:length(param.cams)
+			str=param.cams{i,1}
 			% Load image headers and get UIDs
 			[temp,i_PID]=readImagesHeader([rootpath filenames.(str) '.header']);
 			option.IMAGE_PID=i_PID';
