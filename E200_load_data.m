@@ -37,7 +37,7 @@ function data=E200_load_data(pathstr)
 		% If the file doesn't exist, create it.
 		if exist(processed_file_path)~=2 && exist(processed_file_path)~=7
 			% Path to save final mat files
-			savepath=fullfile(processed_file_dir,[filename_rt '_processed_files'])
+			savepath=fullfile(processed_file_dir,[filename_rt '_processed_files']);
 	
 			data=E200_gather_data(loadpath);
 	

@@ -39,7 +39,7 @@ function data=E200_gather_data(pathstr,varargin)
 		error('File not valid.');
 	end
 
-	display(settype)
+	% display(settype)
 	% Get param so I can get experiment so I can initialize paths
 	% Also, load files needed later
 	switch settype
@@ -111,7 +111,7 @@ function data=E200_gather_data(pathstr,varargin)
 			
 			data=E200_concat(data,data_append);
 		end
-		display('here')
+		% display('here')
 		data.user.dev.stepfiles=stepfiles;
 		data.user.dev.scan_info=scan_info;
 		data.raw.metadata.scan_info=scan_info;
@@ -188,7 +188,7 @@ function data=E200_gather_data(pathstr,varargin)
 		% Initialize data.raw.images.(name)
 		format=cell_construct('bin',1,n_i_shots);
 		for i=1:length(param.cams)
-			str=param.cams{i,1}
+			str=param.cams{i,1};
 			% Load image headers and get UIDs
 			[temp,i_PID]=readImagesHeader([rootpath filenames.(str) '.header']);
 			option.IMAGE_PID=i_PID';
@@ -213,12 +213,12 @@ function data=E200_gather_data(pathstr,varargin)
 												1,n_i_shots),...
 							'background_format'	, cell_construct('mat',1,n_i_shots));
 				names=fieldnames(cam_back.(str));
-				for i=1:size(names,1)
-					toadd=cam_back.(str).(names{i});
+				for j=1:size(names,1)
+					toadd=cam_back.(str).(names{j});
 					if iscell(toadd)
-						data.raw.images.(str).(names{i})=cell_construct(toadd,1,n_i_shots);
+						data.raw.images.(str).(names{j})=cell_construct(toadd,1,n_i_shots);
 					else
-						data.raw.images.(str).(names{i})=ones(1,n_i_shots)*toadd;
+						data.raw.images.(str).(names{j})=ones(1,n_i_shots)*toadd;
 					end
 				end
 			end

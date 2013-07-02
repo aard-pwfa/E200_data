@@ -32,7 +32,7 @@ if nargin==4
 end
 
 % EPICS_SHOT is the index of the shot in the step in the dataset
-step = unique(EPICS_SCANSTEP)
+step = unique(EPICS_SCANSTEP);
 EPICS_SHOT = [];
 for i = 1:length(step)
     EPICS_SHOT = [EPICS_SHOT (1:sum(EPICS_SCANSTEP == step(i)))];
@@ -45,11 +45,11 @@ out.epics_UID=epics_UID;
 if exist('IMAGE_PID')
     image_UID = [];
     for i = 1:length(step)
-	    display(i)
-	    display(step)
-	    size(step)
-	    display(IMAGE_PID);
-	    display(IMAGE_SCANSTEP);
+	    % display(i)
+	    % display(step)
+	    % size(step)
+	    % display(IMAGE_PID);
+	    % display(IMAGE_SCANSTEP);
         % isolate pulse IDs for relevant scan step
         EPID = EPICS_PID(EPICS_SCANSTEP == step(i));
         EUID = epics_UID(EPICS_SCANSTEP == step(i));
