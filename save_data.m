@@ -85,11 +85,18 @@ function copy_if_missing(fromstr,tostr)
 end
 
 function newpath=strip_if_relative(newpath,relative)
+	display(newpath)
+	display(relative)
 	if relative==true
-		ind=regexp(newpath,'(?<=/.*)_files/');
-		inds=regexp(newpath,'/');
-		ind=inds(ind>inds);
-		newpath=newpath(ind(end)+1:end);
+		ind=regexp(newpath,'(?<=.*)_files/')
+		inds=regexp(newpath,'/')
+		bool=ind>inds;
+		if sum(bool) == 0
+			return;
+		else
+			ind=inds(ind>inds);
+			newpath=newpath(ind(end)+1:end);
+		end
 	else
 		ind=regexp(newpath,'processed_data');
 		newpath=newpath(ind:end);
