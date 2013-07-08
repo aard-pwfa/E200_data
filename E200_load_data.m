@@ -33,9 +33,15 @@ function data=E200_load_data(pathstr)
 	
 	% Run certain things depending on which machine you're on.
 	% facet-srv20 gets special treatment: no files saved!
+	already_exists=(exist(processed_file_path)==2 || exist(processed_file_path)==7);
 	if ~isfs20
+		display('hi')
+		display(processed_file_path)
+		display(exist(processed_file_path))
 		% If the file doesn't exist, create it.
-		if exist(processed_file_path)~=2 && exist(processed_file_path)~=7
+
+		if ~already_exists
+			display('here');
 			% Path to save final mat files
 			savepath=fullfile(processed_file_dir,[filename_rt '_processed_files']);
 	
@@ -58,7 +64,7 @@ function data=E200_load_data(pathstr)
 	data.VersionInfo.originalpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
 	data.VersionInfo.loadrequest=pathstr;
 	
-	if ~isfs20
+	if ~isfs20 && ~already_exists
 		data=save_data(data,processed_file_path,false);
 	end
 end
