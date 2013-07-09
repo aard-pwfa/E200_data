@@ -34,27 +34,24 @@ function data=E200_load_data(pathstr)
 	% Run certain things depending on which machine you're on.
 	% facet-srv20 gets special treatment: no files saved!
 	already_exists=(exist(processed_file_path)==2 || exist(processed_file_path)==7);
-	if ~isfs20
-		display('hi')
-		display(processed_file_path)
-		display(exist(processed_file_path))
+	if isfs20
+		data=E200_gather_data(loadpath);
+	else
+		% display(processed_file_path)
+		% display(exist(processed_file_path))
 		% If the file doesn't exist, create it.
 
-		if ~already_exists
-			display('here');
+		if already_exists
+			load(processed_file_path);
+		else
+			% display('here');
 			% Path to save final mat files
 			savepath=fullfile(processed_file_dir,[filename_rt '_processed_files']);
 	
 			data=E200_gather_data(loadpath);
 	
 			data=E200_convert_images(data,savepath);
-	
 		end
-		
-		load(processed_file_path);
-	% This is for facet-srv20
-	else
-		data=E200_gather_data(loadpath);
 	end
 
 	% Info that this comes from a HDD
