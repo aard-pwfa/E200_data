@@ -5,8 +5,7 @@
 %%   First version!
 
 % specify dataset
-filename = '/Volumes/PWFA 4big/nas/nas-li20-pm01/E200/2013/20130429/E200_10970/E200_10970_2013-04-29-23-46-39_filenames.mat'
-%filename = '/Volumes/PWFA 4big/nas/nas-li20-pm01/E200/2013/20130429/E200_10970/' % to be changed to this!
+filename = '/Volumes/PWFA 4big/nas/nas-li20-pm01/E200/2013/20130429/E200_10970/'
 
 % load data (automatically converts if needed)
 mydata = E200_load_data(filename);
