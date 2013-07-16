@@ -26,10 +26,11 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	end
 
 	% Initialize cell arrays
-	num_imgs=size(imgstruct.UID,2);
+	% num_imgs=size(imgstruct.UID,2)
 
 	% Valid UIDs
 	[valid_UID, img_UID_ind, UID_ind]=intersect(imgstruct.UID,UID);
+	num_imgs=length(img_UID_ind)
 
 	imgs=cell(1,num_imgs);
 	% bin_to_load=cell(1,size(UID,2));
@@ -59,20 +60,21 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 
 	% Load binaries here, prevent redundancy
 	% Read each file in
-	% display(bin_to_load);
 	bin_to_load=unique(bin_to_load);
-	for j=1:size(bin_to_load,2)
-		% Read file
-		[image_data, cam_name, pulse_id] = readImagesBin(bin_to_load{j});
-
-		% Get boolean for all shots matching file
-		bool_shots=strcmp(bin_to_load{j},imgs);
-
-		% Operate on all shots matching file
-		for k=1:num_imgs
-			if bool_shots(k)
-				% Replace filenames with data
-				imgs{k}=image_data(:,:,imgstruct.bin_index(k));
+	if ~isempty(bin_to_load)
+		for j=1:size(bin_to_load,2)
+			% Read file
+			[image_data, cam_name, pulse_id] = readImagesBin(bin_to_load{j});
+	
+			% Get boolean for all shots matching file
+			bool_shots=strcmp(bin_to_load{j},imgs);
+	
+			% Operate on all shots matching file
+			for k=1:num_imgs
+				if bool_shots(k)
+					% Replace filenames with data
+					imgs{k}=image_data(:,:,imgstruct.bin_index(k));
+				end
 			end
 		end
 	end

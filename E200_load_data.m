@@ -37,15 +37,11 @@ function data=E200_load_data(pathstr)
 	if isfs20
 		data=E200_gather_data(loadpath);
 	else
-		% display(processed_file_path)
-		% display(exist(processed_file_path))
 		% If the file doesn't exist, create it.
-
 		if already_exists
 			load(processed_file_path);
 			return;
 		else
-			% display('here');
 			% Path to save final mat files
 			savepath=fullfile(processed_file_dir,[filename_rt '_processed_files']);
 	
