@@ -128,7 +128,8 @@ function data=E200_gather_data(pathstr,varargin)
 		[temp,i_PID]=readImagesHeader([rootpath filenames.(param.cams{1,1}) '.header']);
 		n_i_shots_saved=length(i_PID);
 		if n_i_shots~=n_i_shots_saved
-			warndlg(['Shots requested: ' num2str(n_i_shots) ' Shots saved: ' num2str(n_i_shots_saved) ] );
+			h=warndlg(['Shots requested: ' num2str(n_i_shots) ' Shots saved: ' num2str(n_i_shots_saved) ]);
+			uiwait(h);
 			n_i_shots=n_i_shots_saved;
 		end
 		i_scan_step=ones(1,n_i_shots)*options.scan_step;
@@ -189,16 +190,17 @@ function data=E200_gather_data(pathstr,varargin)
 		format=cell_construct('bin',1,n_i_shots);
 		for i=1:length(param.cams)
 			str=param.cams{i,1};
+			[filestr,structstr]=cams2filenames(str);
 			% Load image headers and get UIDs
-			[temp,i_PID]=readImagesHeader([rootpath filenames.(str) '.header']);
+			[temp,i_PID]=readImagesHeader([rootpath filenames.(filestr) '.header']);
 			option.IMAGE_PID=i_PID';
 			option.IMAGE_SCANSTEP=i_scan_step;
 			UIDs		= assign_UID(e_PID,e_scan_step,e_dataset,option);
 			i_UID = UIDs.image_UID;
 
-			data.raw.images.(str)=struct();
-			data.raw.images.(str)=replace_field(data.raw.images.(str),...
-							'dat'			, cell_construct(filenames.(str),1,n_i_shots),...
+			data.raw.images.(structstr)=struct();
+			data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
+							'dat'			, cell_construct(filenames.(filestr),1,n_i_shots),...
 							'format'		, format, ...
 							'isfile'		, ones(1,n_i_shots), ...
 							'bin_index'		, [1:n_i_shots], ...
@@ -207,18 +209,18 @@ function data=E200_gather_data(pathstr,varargin)
 							'IDtype'		, 'Image');
 			% Add the remaining info from cam_back
 			if isstruct(cam_back)
-				data.raw.images.(str)=replace_field(data.raw.images.(str),...
+				data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
 							'background_dat'	, cell_construct(...
-												bgpath(experimentstr,str,datasetstr,options.scan_step,Pathname),...
+												bgpath(experimentstr,structstr,datasetstr,options.scan_step,Pathname),...
 												1,n_i_shots),...
 							'background_format'	, cell_construct('mat',1,n_i_shots));
 				names=fieldnames(cam_back.(str));
 				for j=1:size(names,1)
 					toadd=cam_back.(str).(names{j});
 					if iscell(toadd)
-						data.raw.images.(str).(names{j})=cell_construct(toadd,1,n_i_shots);
+						data.raw.images.(structstr).(names{j})=cell_construct(toadd,1,n_i_shots);
 					else
-						data.raw.images.(str).(names{j})=ones(1,n_i_shots)*toadd;
+						data.raw.images.(structstr).(names{j})=ones(1,n_i_shots)*toadd;
 					end
 				end
 			end

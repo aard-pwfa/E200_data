@@ -43,6 +43,7 @@ function data=E200_load_data(pathstr)
 
 		if already_exists
 			load(processed_file_path);
+			return;
 		else
 			% display('here');
 			% Path to save final mat files
