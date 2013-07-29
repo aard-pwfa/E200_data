@@ -76,6 +76,9 @@ function struct=recurse_save_file(struct,path,relative)
 end
 
 function copy_if_missing(fromstr,tostr)
+	[dir_beg,dir_mid,filename]=get_valid_filename(fromstr);
+	fromstr=fullfile(dir_beg,dir_mid,filename);
+	
 	if exist(tostr)~=2
 		display(['Copying file to ' tostr '...']);
 		try

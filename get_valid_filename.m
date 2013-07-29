@@ -1,4 +1,4 @@
-function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr)
+function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 % PATHSTR=GET_VALID_FILENAME  Gets a valid filename given an input path.
 	switch exist(pathstr)
 	% File doesn't exist
@@ -70,18 +70,22 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr)
 	% 2 indicated a full pathname to any file
 	% We need to check if it's valid, and extract dirs.
 	case 2
-		% Check for string endings
-		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')))
-			error('Neither a scan_info.mat file nor a filenames.mat file.');
+		if nargin==2 && varargin{1}==false
+			% Check for string endings
+			if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')))
+				error('Neither a scan_info.mat file nor a filenames.mat file.');
+			end
+	
+			% Check this is a data file.
+			% Must have /nas/nas-li20-pm01
+			startind=regexp(pathstr,'/nas/nas-li20-pm01');
+			if isempty(startind)
+				error('Does not point to a file with /nas/nas-li20-pm01 in its path.');
+			end
+			startind=startind(1);
+		else
+			startind=1;
 		end
-
-		% Check this is a data file.
-		% Must have /nas/nas-li20-pm01
-		startind=regexp(pathstr,'/nas/nas-li20-pm01');
-		if isempty(startind)
-			error('Does not point to a file with /nas/nas-li20-pm01 in its path.');
-		end
-		startind=startind(1);
 
 		% Get the directories
 		[dirstr,namestr,extstr]=fileparts(pathstr);
