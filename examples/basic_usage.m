@@ -5,7 +5,7 @@
 %%   First version!
 
 % specify dataset
-filename = '/Volumes/PWFA 4big/nas/nas-li20-pm01/E200/2013/20130429/E200_10970/'
+filename = '/nas/nas-li20-pm01/E200/2013/20130429/E200_10970/'
 
 % load data (automatically converts if needed)
 mydata = E200_load_data(filename);
@@ -13,8 +13,12 @@ mydata = E200_load_data(filename);
 % plot BPM2445X vs pyro
 plot(mydata.raw.scalars.BLEN_LI20_3014_BRAW.dat, mydata.raw.scalars.BPMS_LI20_2445_X.dat, 'x');
 
+% Create a new figure
+figure;
+
 % look at an image
-load(mydata.raw.images.CELOSS.dat{1}); imagesc(flipud(img'));
+images=E200_load_images(mydata.raw.images.CELOSS,mydata.raw.images.CELOSS.UID(1));
+imagesc(flipud(images{1}'));
 
 % save data to local harddrive and take home
 filename_save = '~/temp/savetest/saved.mat'
