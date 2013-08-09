@@ -188,7 +188,7 @@ function data=E200_gather_data(pathstr,varargin)
 
 		% Initialize data.raw.images.(name)
 		format=cell_construct('bin',1,n_i_shots);
-		for i=1:length(param.cams)
+		for i=1:size(param.cams,1)
 			str=param.cams{i,1};
 			[filestr,structstr]=cams2filenames(str);
 			% Load image headers and get UIDs
