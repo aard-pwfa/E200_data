@@ -74,7 +74,7 @@ if exist('IMAGE_PID')
             end
             [discard,discard,ib_lo] = intersect(iid_lo,EPID);
             [discard,discard,ib_hi] = intersect(iid_hi,EPID);
-            ib = [ib_lo ib_hi];
+            ib = [ib_lo; ib_hi];
         end        
         % assign image UID
         image_UID = [image_UID EUID(ib)];
@@ -111,7 +111,7 @@ if exist('AIDA_PID')
             end
             [discard,discard,ab_lo] = intersect(aid_lo,EPID);
             [discard,discard,ab_hi] = intersect(aid_hi,EPID);
-            ab = [ab_lo ab_hi];
+            ab = [ab_lo; ab_hi];
         end        
         % assign image UID
         aida_UID = [aida_UID EUID(ab)];
