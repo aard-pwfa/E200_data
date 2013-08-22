@@ -44,7 +44,6 @@ function data=E200_load_data(pathstr)
 		else
 			% Path to save final mat files
 			savepath=fullfile(processed_file_dir,[filename_rt '_processed_files']);
-	
 			data=E200_gather_data(loadpath);
 	
 			data=E200_convert_images(data,savepath);

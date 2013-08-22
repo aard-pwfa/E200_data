@@ -22,7 +22,6 @@ function data=E200_gather_data(pathstr,varargin)
 	[dir_beg,dir_mid,Filename]=get_valid_filename(pathstr);
 	Pathname=fullfile(dir_beg,dir_mid);
 
-
 	rootpath=get_rootpath(Pathname);
 
 	% Determine which file type is being used.
@@ -93,7 +92,6 @@ function data=E200_gather_data(pathstr,varargin)
 	data.user.dev.Pathname = Pathname;
 	data.user.dev.Filename = Filename;
 	
-	
 	% Type-specific Initialization
 	switch settype
 	case 'scan'
@@ -135,14 +133,14 @@ function data=E200_gather_data(pathstr,varargin)
 		i_scan_step=ones(1,n_i_shots)*options.scan_step;
 
 		% Generate epics-type UID
-		bool		= strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
-		e_PID	   = epics_data_mat(bool,:);
+		bool        = strcmp('PATT_SYS1_1_PULSEID',fieldnames(epics_data));
+		e_PID       = epics_data_mat(bool,:);
 		e_scan_step = ones(1,n_e_shots)*options.scan_step;
-		% setstr	  = str2num(param.save_name(1:10));
-		dataset	 = str2num(datasetstr);
+		% setstr     = str2num(param.save_name(1:10));
+		dataset     = str2num(datasetstr);
 		e_dataset   = dataset * ones(1,n_e_shots);
-		UIDs		= assign_UID(e_PID,e_scan_step,e_dataset);
-		e_UID	   = UIDs.epics_UID;
+		UIDs        = assign_UID(e_PID,e_scan_step,e_dataset);
+		e_UID       = UIDs.epics_UID;
 
 		% Put in epics_data
 		names=fieldnames(epics_data);
@@ -164,14 +162,12 @@ function data=E200_gather_data(pathstr,varargin)
 			% Save backgrounds to file
 			camstr=fieldnames(cam_back);
 			for i=1:size(camstr,1)
-				% bgname=[camstr{i} '_set' num2str(dataset) '_step' num2str(scan_step) '.mat'];
-				% bg_name=bgname(camstr{i},dataset,scan_step);
-				% bgpath=fullfile(imgpath,bg_name);
-				bgpathstr=bgpath(experimentstr,camstr{i},dataset,options.scan_step,Pathname);
+				[filestr,structstr]=cams2filenames(camstr{i});
+				bgpathstr=bgpath(experimentstr,structstr,dataset,options.scan_step,Pathname);
 				% Save if backgrounds don't exist
 				if ~( exist(bgpathstr)==2 )
 					display('Saving background file...');
-					img=cam_back.(camstr{i}).img;
+					img=cam_back.(filestr).img;
 					save(bgpathstr,'img');
 				end
 				cam_back.(camstr{i})=rmfield(cam_back.(camstr{i}),'img');
