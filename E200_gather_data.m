@@ -176,7 +176,12 @@ function data=E200_gather_data(pathstr,varargin)
 
 		% Extract E200_state and facet_state if they exist(consistency)
 		if isstruct(E200_state)
-		    data.raw.metadata.E200_state=add_raw(cell_construct(E200_state,1,n_e_shots), e_UID,'EPICS');
+			data.raw.metadata.E200_state=add_raw(cell_construct(E200_state,1,n_e_shots), e_UID,'EPICS');
+			fields=fieldnames(E200_state);
+			for i=1:length(fields)
+				curfield=fields{i};
+				data.raw.scalars.(curfield)=add_raw(cell_construct(E200_state.(curfield),1,n_e_shots), e_UID,'EPICS');
+			end
 		end
 		if isstruct(facet_state)
 		    data.raw.metadata.facet_state=add_raw(cell_construct(facet_state,1,n_e_shots), e_UID,'EPICS');
