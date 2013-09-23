@@ -76,11 +76,12 @@ function data=E200_gather_data(pathstr,varargin)
 	data         = struct();
 	data.VersionInfo = struct('Version',0.2);
 
-	data.raw         = struct();
-	data.raw.images  = struct();
-	data.raw.scalars = struct();
-	data.raw.vectors = struct();
-	data.raw.arrays  = struct();
+	data.raw          = struct();
+	data.raw.images   = struct();
+	data.raw.scalars  = struct();
+	data.raw.vectors  = struct();
+	data.raw.arrays   = struct();
+	data.raw.metadata = struct();
 
 	data.processed   = data.raw;
 
@@ -88,9 +89,9 @@ function data=E200_gather_data(pathstr,varargin)
 
 
 	% Save some info for development purposes
-	data.user.dev.path     = pathstr;
-	data.user.dev.Pathname = Pathname;
-	data.user.dev.Filename = Filename;
+	% data.user.dev.path     = pathstr;
+	% data.user.dev.Pathname = Pathname;
+	% data.user.dev.Filename = Filename;
 	
 	% Type-specific Initialization
 	switch settype
@@ -110,9 +111,9 @@ function data=E200_gather_data(pathstr,varargin)
 			data=E200_concat(data,data_append);
 		end
 		% display('here')
-		data.user.dev.stepfiles=stepfiles;
-		data.user.dev.scan_info=scan_info;
-		data.raw.metadata.scan_info=scan_info;
+		% data.user.dev.stepfiles=stepfiles;
+		% data.user.dev.scan_info=scan_info;
+		% data.raw.metadata.scan_info=scan_info;
 
 	case 'daq'
 
@@ -232,7 +233,7 @@ function data=E200_gather_data(pathstr,varargin)
 		data.raw.metadata.param=add_raw(cell_construct(param,1,n_e_shots), e_UID,'EPICS');
 		
 	case 'none'
-			error('Filetype not understood.');
+		error('Filetype not understood.');
 	end
 	
 	% All file initializations
@@ -258,5 +259,5 @@ function data=add_scan_info(data,scan_info)
         Control_PV_name = {scan_info(1).Control_PV_name};
     end
 	data=add_step_info(data,Control_PV_name,scan_info.Control_PV);
-	data.raw.metadata.scan_info=add_raw(cell_construct(scan_info,1,size_UID),UID,'EPICS');
+	data.raw.metadata.scan_info=add_raw(cell_construct(scan_info(1),1,size_UID),UID,'EPICS');
 end
