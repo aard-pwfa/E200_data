@@ -73,7 +73,7 @@ function [dest,diff]=copy_recurse(src,dest,overwrite_bool)
 			end
 		end
 	% Tip of tree: cell
-	elseif iscell(src) || isnumeric(src) || ischar(src)
+	elseif iscell(src) || isnumeric(src) || ischar(src) || islogical(src)
 		% Compare.  If equal, move on.
 		if isequaln(src,dest)
 			return;

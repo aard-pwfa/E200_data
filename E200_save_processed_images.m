@@ -4,7 +4,7 @@ function data = E200_save_processed_images(proc_img_array,proc_img_struct,data,s
 orig_path = data.VersionInfo.originalpath;
 proc_file = strtok(data.VersionInfo.originalfilename,'.');
 prfx = get_remoteprefix;
-proc_path = [prfx '/' orig_path '/' proc_file '_files/processed/images/' struct_str '/'];
+proc_path = [orig_path '/' proc_file '_files/processed/images/' struct_str '/'];
 if ~exist(proc_path,'dir'); mkdir(proc_path); end;
 
 num_imgs = numel(proc_img_array);
@@ -16,7 +16,7 @@ for i=1:numel(proc_img_array)
     proc_fname = [proc_path fname];
     img = proc_img_array{i};
     display(['Saving image ' num2str(i) ' of ' num2str(num_imgs)]);
-    save(proc_fname,'img');
+    save([prfx '/' proc_fname],'img');
 
     proc_img_struct.dat{i} = proc_fname;
     proc_img_struct.raw_field{i} = raw_field;
