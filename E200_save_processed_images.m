@@ -5,7 +5,7 @@ orig_path = data.VersionInfo.originalpath;
 proc_file = strtok(data.VersionInfo.originalfilename,'.');
 prfx = get_remoteprefix;
 proc_path = [orig_path '/' proc_file '_files/processed/images/' struct_str '/'];
-if ~exist(proc_path,'dir'); mkdir(proc_path); end;
+if ~exist([prfx '/' proc_path],'dir'); mkdir([prfx '/' proc_path]); end;
 
 num_imgs = numel(proc_img_array);
 proc_img_struct.raw_field = cell(1,num_imgs);
