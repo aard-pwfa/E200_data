@@ -41,8 +41,8 @@ function data=E200_load_data(pathstr)
 		if already_exists
 			load(processed_file_path);
             fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
-            [end_path,proc] = strsplit(fullpath,'processed','DelimiterType','RegularExpression');
-            data.VersionInfo.originalpath = [proc{1} end_path{end}];
+            [top,file_id] = strtok(fullpath,'E200');
+            data.VersionInfo.originalpath = ['processed_data/' file_id];
 			return;
 		else
 			% Path to save final mat files
@@ -58,8 +58,8 @@ function data=E200_load_data(pathstr)
 	data.VersionInfo.remotefiles.comment = 'Indicates whether files are stored on a remote disk (and getpref(''FACET_data'',''prefix'') should be used.';
 	data.VersionInfo.originalfilename=filename_final;
 	fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
-    [end_path,proc] = strsplit(fullpath,'processed','DelimiterType','RegularExpression');
-    data.VersionInfo.originalpath = [proc{1} end_path{2}];
+    [top,file_id] = strtok(fullpath,'E200');
+    data.VersionInfo.originalpath = ['processed_data/' file_id];
 	data.VersionInfo.loadrequest=pathstr;
 	
 	if ~isfs20 && ~already_exists
