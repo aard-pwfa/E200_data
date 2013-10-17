@@ -74,6 +74,8 @@ if exist('IMAGE_PID')
             end
             [discard,discard,ib_lo] = intersect(iid_lo,EPID);
             [discard,discard,ib_hi] = intersect(iid_hi,EPID);
+            if isrow(ib_lo); ib_lo'; end;
+            if isrow(ib_hi); ib_hi'; end;
             ib = [ib_lo; ib_hi];
         end        
         % assign image UID
@@ -111,6 +113,8 @@ if exist('AIDA_PID')
             end
             [discard,discard,ab_lo] = intersect(aid_lo,EPID);
             [discard,discard,ab_hi] = intersect(aid_hi,EPID);
+            if isrow(ab_lo); ab_lo'; end;
+            if isrow(ab_hi); ab_hi'; end;
             ab = [ab_lo; ab_hi];
         end        
         % assign image UID
