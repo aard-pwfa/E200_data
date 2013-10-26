@@ -12,7 +12,7 @@ function prefix=get_remoteprefix()
 	datapath=fullfile(prefix,'nas','nas-li20-pm01');
 	if exist(datapath)~=7
 		% Drive may not be mounted: warn user, allow to mount drive or change prefix.
-		options={'Try again.','Change location of /nas.'};
+		options={'Try again.','Locate folder containing /nas.'};
 		button=options{1};
 
 		% While the user tries again, and the datapath isn't a folder
