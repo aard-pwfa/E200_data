@@ -168,14 +168,9 @@ function data=E200_gather_data(pathstr,varargin)
 				% Save if backgrounds don't exist
 				if ~( exist(bgpathstr)==2 )
 					display('Saving background file...');
-
-                    
-% 					img=cam_back.(filestr).img;
-					img=cam_back.(structstr).img; % MIKE's EMERGENCY PATCH
-
-                    
-                    save(bgpathstr,'img');
-                end
+					img=cam_back.(filestr).img;
+					save(bgpathstr,'img');
+				end
 				cam_back.(camstr{i})=rmfield(cam_back.(camstr{i}),'img');
 			end
 		end
