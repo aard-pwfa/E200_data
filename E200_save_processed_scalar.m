@@ -2,6 +2,8 @@
 % Adds a scalar to the 'processed' sub-struct in the data
 % and save to the remote disk storage accordingly.
 %
+% NOTE from the author: this script is stupid. Just use E200_save_remote.
+%
 % Inputs:
 %
 % data  : main data struct as obtained by E200_load_data
