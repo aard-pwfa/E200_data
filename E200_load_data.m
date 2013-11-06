@@ -40,9 +40,9 @@ function data=E200_load_data(pathstr)
 		% If the file doesn't exist, create it.
 		if already_exists
 			load(processed_file_path);
-            fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
-            [top,file_id] = strtok(fullpath,'E200');
-            data.VersionInfo.originalpath = ['processed_data/' file_id];
+			fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
+			[top,file_id] = strtok(fullpath,'E200');
+			data.VersionInfo.originalpath = ['processed_data/' file_id];
 			return;
 		else
 			% Path to save final mat files
