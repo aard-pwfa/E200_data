@@ -1,6 +1,7 @@
 *.swp
 java.opts
 *.swo
+.*.swo
 *~
 *.mat
 .DS_Store
