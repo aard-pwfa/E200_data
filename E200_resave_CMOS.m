@@ -60,6 +60,6 @@ for i = 1:length(cmos_files)
 end
 
 mydata.raw.images.CMOS = CMOS_struct;
-data=E200_save_remote(mydata);
+data=E200_save_remote(mydata,true);
 
 
