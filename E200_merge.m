@@ -39,7 +39,7 @@ function data_dest=add_fields_main(data_src,data_dest,override)
     % if override flag is set, over write everything
     if (override)
         clear ignorefields;
-        clear no_overwrite
+        clear no_overwrite;
     end
 
 	% Get all fields
