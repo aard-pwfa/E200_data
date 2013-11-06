@@ -20,9 +20,11 @@ function data=E200_gather_data(pathstr,varargin)
 	% % path='/nas/nas-li20-pm01/E200/2013/20130520/E200_11209/E200_11209_2013-05-20-22-32-18_filenames.mat';
 	% % path='/nas/nas-li20-pm01/E200/2013/20130514/E200_11159/E200_11159_scan_info.mat';
 	[dir_beg,dir_mid,Filename]=get_valid_filename(pathstr);
-	Pathname=fullfile(dir_beg,dir_mid);
+	Pathname=fullfile(dir_beg,dir_mid)
+	display(dir_mid)
 
-	rootpath=get_rootpath(Pathname);
+	% rootpath=get_rootpath(Pathname);
+	rootpath = get_remoteprefix();
 
 	% Determine which file type is being used.
 	settype='none';
@@ -102,7 +104,6 @@ function data=E200_gather_data(pathstr,varargin)
 		data=E200_gather_data(fullfile(Pathname,stepfiles(1).name),options);
 		data=add_scan_info(data,scan_info(1));
 		for i=2:n_steps
-		% for i=2:2
 			steppath=fullfile(Pathname,stepfiles(i).name);
 			options.scan_step=i;
 			data_append=E200_gather_data(steppath,options);
@@ -110,10 +111,7 @@ function data=E200_gather_data(pathstr,varargin)
 			
 			data=E200_concat(data,data_append);
 		end
-		% display('here')
-		% data.user.dev.stepfiles=stepfiles;
-		% data.user.dev.scan_info=scan_info;
-		% data.raw.metadata.scan_info=scan_info;
+		data.raw.metadata.n_steps = n_steps;
 
 	case 'daq'
 
@@ -213,7 +211,7 @@ function data=E200_gather_data(pathstr,varargin)
 			if isstruct(cam_back)
 				data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
 							'background_dat'	, cell_construct(...
-												bgpath(experimentstr,structstr,datasetstr,options.scan_step,Pathname),...
+												bgpath(experimentstr,structstr,datasetstr,options.scan_step,dir_mid),...
 												1,n_i_shots),...
 							'background_format'	, cell_construct('mat',1,n_i_shots));
 				names=fieldnames(cam_back.(str));
@@ -244,6 +242,7 @@ function data=E200_gather_data(pathstr,varargin)
 end
 
 function out=bgpath(experiment,imgname,set,step,basepath)
+	display(['Basepath: ' basepath])
 	out=['Background_' imgname '_set' num2str(set) '_step' num2str(step) '.mat'];
 	out=fullfile(basepath,[experiment '_' num2str(set) '_files'],'raw','images',imgname,'backgrounds',out);
 	[outpath,name,ext]=fileparts(out);
