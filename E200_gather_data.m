@@ -161,7 +161,7 @@ function data=E200_gather_data(pathstr,varargin)
 			% Save backgrounds to file
 			camstr=fieldnames(cam_back);
 			for i=1:size(camstr,1)
-				[filestr,structstr]=cams2filenames(camstr{i});
+				[filestr,structstr]=cams2filenames(camstr{i},param.timestamp);
 				bgpathstr=bgpath(experimentstr,structstr,dataset,options.scan_step,Pathname);
 				% Save if backgrounds don't exist
 				if ~( exist(bgpathstr)==2 )
@@ -190,7 +190,7 @@ function data=E200_gather_data(pathstr,varargin)
 		format=cell_construct('bin',1,n_i_shots);
 		for i=1:size(param.cams,1)
 			str=param.cams{i,1};
-			[filestr,structstr]=cams2filenames(str);
+			[filestr,structstr]=cams2filenames(str,param.timestamp);
 			% Load image headers and get UIDs
 			[temp,i_PID]=readImagesHeader([rootpath filenames.(filestr) '.header']);
 			option.IMAGE_PID=i_PID';
