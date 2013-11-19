@@ -14,6 +14,8 @@ function data=save_data(data,filepath,relative)
 	create_file_tree(datapath);
 
 	% Copy all files out of data into appropriate location and change paths
+	display(datapath)
+	display(relative)
 	data=recurse_save_file(data,datapath,relative);
 
 	% Save file
@@ -76,8 +78,16 @@ function struct=recurse_save_file(struct,path,relative)
 end
 
 function copy_if_missing(fromstr,tostr)
-	[dir_beg,dir_mid,filename]=get_valid_filename(fromstr);
-	fromstr=fullfile(dir_beg,dir_mid,filename);
+	if exist(fromstr)~=2
+		tryfromstr = fullfile(get_remoteprefix(),fromstr);
+		if exist(tryfromstr)~=2
+			error(['File to be copied doesn''t exist:\n' fromstr])
+		else
+			fromstr = tryfromstr;
+		end
+	end
+	% [dir_beg,dir_mid,filename]=get_valid_filename(fromstr);
+	% fromstr=fullfile(dir_beg,dir_mid,filename);
 	
 	if exist(tostr)~=2
 		display(['Copying file to ' tostr '...']);

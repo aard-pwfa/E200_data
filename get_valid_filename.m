@@ -72,7 +72,7 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 	case 2
 		% Check for string endings
 		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')))
-			error('Neither a scan_info.mat file nor a filenames.mat file.');
+			warning(['Neither a scan_info.mat file nor a filenames.mat file:\n' pathstr]);
 		end
 	
 		% Check this is a data file.
