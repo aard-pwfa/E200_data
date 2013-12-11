@@ -41,7 +41,8 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	for i=1:num_imgs
 		cur_img_ind=img_UID_ind(i);
 		% Load what we can - not necessarily in order!
-		switch imgstruct.format{cur_img_ind}
+		fmt = imgstruct.format{cur_img_ind};
+		switch fmt
 		case 'mat'
 			load(fullfile(prefix,imgstruct.dat{cur_img_ind}));
 			imgs{i}=img;
@@ -50,6 +51,11 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 			loadstr=fullfile(prefix,imgstruct.dat{cur_img_ind});
 			imgs{i}=loadstr;
 			bin_to_load=[bin_to_load, {loadstr}];
+		case 'CMOS'
+			loadstr = fullfile(prefix,imgstruct.dat{cur_img_ind});
+			imgs{i} = imread(loadstr);
+		otherwise
+			warning(['Image format (' fmt ') not recognized.']);
 		end
 		% If backgrounds are requested, load backgrounds
 		if nargout==2

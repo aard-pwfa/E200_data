@@ -13,7 +13,8 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 			% Iterate for each camera
 			% ================================================
 			for i=1:size(param.cmos_path,2)
-				filelist  = dir(fullfile(param.cmos_path{i}));
+				path = param.cmos_path{i}
+				filelist  = dir(fullfile(path,'*.tif'));
 				n_i_shots = size(filelist,1);
 				step      = zeros(1,n_i_shots);
 				pID       = zeros(1,n_i_shots);
@@ -23,7 +24,7 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 				% ================================================
 				for j=1:n_i_shots
 					file     = filelist(j).name;
-					files{j} = file;
+					files{j} = fullfile(get_remoteprefix(),path,file);
 					separ    = regexp(file,'_');
 					step(j)  = str2num(file(separ(2)+1:separ(3)-1));
 					pID(j)   = str2num(file(separ(4)+1:end-4));
