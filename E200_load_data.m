@@ -27,14 +27,15 @@ function data=E200_load_data(pathstr)
 	processed_file_path=fullfile(processed_file_dir,filename_final);
 
 	% Get the hostname of the computer.
-	[status,hostname]=unix('hostname');
-	hostname = strrep(hostname,sprintf('\n'),'');
-	isfs20=strcmp(hostname,'facet-srv20');
+	% [status,hostname]=unix('hostname');
+	% hostname = strrep(hostname,sprintf('\n'),'');
+	% isfs20=strcmp(hostname,'facet-srv20');
+	isfs20_bool = isfs20();
 	
 	% Run certain things depending on which machine you're on.
 	% facet-srv20 gets special treatment: no files saved!
 	already_exists=(exist(processed_file_path)==2 || exist(processed_file_path)==7);
-	if isfs20
+	if isfs20_bool
 		data=E200_gather_data(loadpath);
 	else
 		% If the file doesn't exist, create it.
@@ -62,7 +63,7 @@ function data=E200_load_data(pathstr)
     data.VersionInfo.originalpath = ['processed_data/' file_id];
 	data.VersionInfo.loadrequest=pathstr;
 	
-	if ~isfs20 && ~already_exists
+	if ~isfs20_bool && ~already_exists
 		data=save_data(data,processed_file_path,false);
 	end
 end
