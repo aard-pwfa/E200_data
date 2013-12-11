@@ -259,6 +259,11 @@ function data=E200_gather_data(pathstr,varargin)
 		end
 
 		% ================================================
+		% Add CMOS data
+		% ================================================
+		data = add_CMOS(data,param,dataset);
+
+		% ================================================
 		% Add metadata
 		% ================================================
 		data.raw.metadata.param=add_raw(cell_construct(param,1,n_e_shots), e_UID,'EPICS');
