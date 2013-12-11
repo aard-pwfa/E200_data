@@ -217,9 +217,16 @@ function data=E200_gather_data(pathstr,varargin)
 		% ================================================
 		% Initialize data.raw.images.(name)
 		% ================================================
+		% If param.cam_UNIQ exists, use it.
+		if isfield(param,'cam_UNIQ')
+			camnames = param.cam_UNIQ;
+		else
+			camnames = param.cams;
+		end
+
 		format=cell_construct('bin',1,n_i_shots);
-		for i=1:size(param.cams,1)
-			str=param.cams{i,1};
+		for i=1:size(camnames,1)
+			str=camnames{i,1};
 			[filestr,structstr]=cams2filenames(str,param.timestamp);
 			% Load image headers and get UIDs
 			[temp,i_PID]=readImagesHeader([rootpath filenames.(filestr) '.header']);
@@ -261,7 +268,7 @@ function data=E200_gather_data(pathstr,varargin)
 		% ================================================
 		% Add CMOS data
 		% ================================================
-		data = add_CMOS(data,param,dataset);
+		data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset);
 
 		% ================================================
 		% Add metadata

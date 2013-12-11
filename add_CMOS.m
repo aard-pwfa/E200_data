@@ -3,52 +3,60 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 	% Only add if cmos cams exist.
 	% ================================================
 	if isfield(param,'cam_CMOS')
+
 		% ================================================
-		% Iterate for each camera
+		% Only add if cmos cams exist.
 		% ================================================
-		for i=1:size(param.cmos_path,2)
-			filelist  = dir(fullfile(param.cmos_path{i}));
-			n_i_shots = size(filelist,1);
-			step      = zeros(1,n_i_shots);
-			pID       = zeros(1,n_i_shots);
-			files     = cell(1,n_i_shots);
+		if size(param.cam_CMOS,1)>0
+			display(param.cam_CMOS);
 			% ================================================
-			% Iterate for each file
+			% Iterate for each camera
 			% ================================================
-			for j=1:n_i_shots
-				file     = filelist(j).name;
-				files{j} = file;
-				separ    = regexp(file,'_');
-				step(j)  = str2num(file(separ(2)+1:separ(3)-1));
-				pID(j)   = str2num(file(separ(4)+1:end-4));
-			end
-
-			% ================================================
-			% Write information gathered into the struct
-			% ================================================
-			% Camera type is CMOS.
-			format=cell_construct('CMOS',1,n_i_shots);
-
-			% Get camera name
-			str=param.cam_CMOS{i,1}
-
-			% Pass through cam name converter (should do nothing?)
-			[filestr,structstr]=cams2filenames(str,param.timestamp);
-
-			% Get image UIDs
-			option.IMAGE_PID      = pID;
-			option.IMAGE_SCANSTEP = step;
-			UIDs                  = assign_UID(e_PID,e_scan_step,e_dataset,option);
-			i_UID                 = UIDs.image_UID;
+			for i=1:size(param.cmos_path,2)
+				filelist  = dir(fullfile(param.cmos_path{i}));
+				n_i_shots = size(filelist,1);
+				step      = zeros(1,n_i_shots);
+				pID       = zeros(1,n_i_shots);
+				files     = cell(1,n_i_shots);
+				% ================================================
+				% Iterate for each file
+				% ================================================
+				for j=1:n_i_shots
+					file     = filelist(j).name;
+					files{j} = file;
+					separ    = regexp(file,'_');
+					step(j)  = str2num(file(separ(2)+1:separ(3)-1));
+					pID(j)   = str2num(file(separ(4)+1:end-4));
+				end
 	
-			data.raw.images.(structstr)=struct();
-			data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
-							'dat'			, files, ...
-							'format'		, format, ...
-							'isfile'		, ones(1,n_i_shots), ...
-							'bin_index'		, [1:n_i_shots], ...
-							'UID'			, i_UID, ...
-	                    				'PID'                   , pID,...
-							'IDtype'		, 'Image');
+				% ================================================
+				% Write information gathered into the struct
+				% ================================================
+				% Camera type is CMOS.
+				format=cell_construct('CMOS',1,n_i_shots);
+	
+				% Get camera name
+				str=param.cam_CMOS{i,1}
+	
+				% Pass through cam name converter (should do nothing?)
+				[filestr,structstr]=cams2filenames(str,param.timestamp);
+	
+				% Get image UIDs
+				option.IMAGE_PID      = pID;
+				option.IMAGE_SCANSTEP = step;
+				UIDs                  = assign_UID(e_PID,e_scan_step,e_dataset,option);
+				i_UID                 = UIDs.image_UID;
+		
+				data.raw.images.(structstr)=struct();
+				data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
+								'dat'			, files, ...
+								'format'		, format, ...
+								'isfile'		, ones(1,n_i_shots), ...
+								'bin_index'		, [1:n_i_shots], ...
+								'UID'			, i_UID, ...
+		                    				'PID'                   , pID,...
+								'IDtype'		, 'Image');
+			end
 		end
+	end
 end
