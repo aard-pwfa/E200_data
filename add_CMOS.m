@@ -20,7 +20,7 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 
 				% Path to dir containing files
 				path = param.cmos_path{i};
-				filelist  = dir(fullfile(path,'*.tif'));
+				filelist  = dir(fullfile(path,'*step*.tif'));
 				n_i_shots = size(filelist,1);
 				if n_i_shots == 0
 					rgbvec = [1,0,0];
@@ -40,6 +40,33 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 					step(j)  = str2num(file(separ(2)+1:separ(3)-1));
 					pID(j)   = str2num(file(separ(4)+1:end-4));
 				end
+				
+				% ================================================
+				% Find cam background
+				% ================================================
+				filelist  = dir(fullfile(path,'*step*.tif'));
+
+				% Pass through cam name converter (should do nothing?)
+				[filestr,structstr]=cams2filenames(str,param.timestamp);
+
+				bgfile = dir(fullfile(path,'*background*.tif'));
+				bgfile = fullfile(path,bgfile.name);
+
+				data.raw.images.(structstr)=struct();
+				data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
+							'background_dat'	, cell_construct(...
+												bgfile,...
+												1,n_i_shots),...
+							'background_format'	, cell_construct('tif',1,n_i_shots));
+				names=fieldnames(param.cmos_bg_struct.(str));
+				for j=1:size(names,1)
+					toadd=param.cmos_bg_struct.(str).(names{j});
+					if iscell(toadd)
+						data.raw.images.(structstr).(names{j})=cell_construct(toadd,1,n_i_shots);
+					else
+						data.raw.images.(structstr).(names{j})=ones(1,n_i_shots)*toadd;
+					end
+				end
 
 				% Camera type is CMOS.
 				format=cell_construct('CMOS',1,n_i_shots);
@@ -48,8 +75,6 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 				% Write information gathered into the struct
 				% ================================================
 	
-				% Pass through cam name converter (should do nothing?)
-				[filestr,structstr]=cams2filenames(str,param.timestamp);
 	
 				% Get image UIDs
 				option.IMAGE_PID      = pID;
@@ -57,7 +82,6 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 				UIDs                  = assign_UID(e_PID,e_scan_step,e_dataset,option);
 				i_UID                 = UIDs.image_UID;
 		
-				data.raw.images.(structstr)=struct();
 				data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
 								'dat'			, files, ...
 								'format'		, format, ...

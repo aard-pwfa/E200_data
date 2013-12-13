@@ -60,7 +60,14 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 		% If backgrounds are requested, load backgrounds
 		if nargout==2
 			if isfield(imgstruct,'background_dat')
-				load(fullfile(prefix,imgstruct.background_dat{cur_img_ind}));
+				switch imgstruct.background_format{cur_img_ind}
+				case 'mat'
+					load(fullfile(prefix,imgstruct.background_dat{cur_img_ind}));
+				case 'tif'
+					display(imgstruct.background_dat{cur_img_ind})
+					loadstr = fullfile(prefix,imgstruct.background_dat{cur_img_ind});
+					img = imread(loadstr);
+				end
 			else % if no background available, make zero
 				img = 0;
 			end
