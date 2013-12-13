@@ -20,7 +20,7 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 
 				% Path to dir containing files
 				path = param.cmos_path{i};
-				filelist  = dir(fullfile(path,'*step*.tif'));
+				filelist  = dir(fullfile(path,['*step_' sprintf('%02d',e_scan_step(1)) '*.tif']));
 				n_i_shots = size(filelist,1);
 				if n_i_shots == 0
 					rgbvec = [1,0,0];
@@ -44,7 +44,6 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset)
 				% ================================================
 				% Find cam background
 				% ================================================
-				filelist  = dir(fullfile(path,'*step*.tif'));
 
 				% Pass through cam name converter (should do nothing?)
 				[filestr,structstr]=cams2filenames(str,param.timestamp);
