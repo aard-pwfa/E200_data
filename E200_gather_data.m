@@ -100,6 +100,10 @@ function data=E200_gather_data(pathstr,varargin)
 	% ================================================
 	switch settype
 	case 'scan'
+		% If cmos_bg_struct exists, pass it along.
+		if isfield(param,'cmos_bg_struct')
+			options.cmos_bg_struct = param.cmos_bg_struct;
+		end
 	
 		n_steps=size(scan_info,2);
 
@@ -268,7 +272,7 @@ function data=E200_gather_data(pathstr,varargin)
 		% ================================================
 		% Add CMOS data
 		% ================================================
-		data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset);
+		data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset,options);
 
 		% ================================================
 		% Add metadata
