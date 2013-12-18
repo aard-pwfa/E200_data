@@ -20,11 +20,12 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset,options)
 
 				% Path to dir containing files
 				path = param.cmos_path{i};
-				filelist  = dir(fullfile(path,['*step_' sprintf('%02d',e_scan_step(1)) '*.tif']));
+				stepfiles = fullfile(get_remoteprefix(),path,['*step_' sprintf('%02d',e_scan_step(1)) '*.tif']);
+				filelist  = dir(stepfiles);
 				n_i_shots = size(filelist,1);
 				if n_i_shots == 0
 					rgbvec = [1,0,0];
-					printstr = ['No CMOS data found for ' str '!\n'];
+					printstr = ['No CMOS data found for ' str ' for path:\n' stepfiles '\n'];
 					cprintf(rgbvec,printstr);
 				end
 				step      = zeros(1,n_i_shots);
@@ -49,8 +50,10 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset,options)
 				[filestr,structstr]=cams2filenames(str,param.timestamp);
 				data.raw.images.(structstr)=struct();
 
-				bgfile = dir(fullfile(path,'*background*.tif'));
-				bgfile = fullfile(path,bgfile.name);
+				prefix = get_remoteprefix();
+
+				bgfile = dir(fullfile(prefix,path,'*background*.tif'));
+				bgfile = fullfile(prefix,path,bgfile.name)
 
 				% Only do things if bg exists
 				if isfield(param,'cmos_bg_struct')
@@ -85,11 +88,11 @@ function data = add_CMOS(data,param,e_PID,e_scan_step,e_dataset,options)
 				UIDs                  = assign_UID(e_PID,e_scan_step,e_dataset,option);
 				i_UID                 = UIDs.image_UID;
 				display('================================')
-				size(i_UID)
-				size(files)
-				size(pID)
-				size(step)
-				display(pID)
+				% size(i_UID)
+				% size(files)
+				% size(pID)
+				% size(step)
+				% display(pID)
 		
 				data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
 								'dat'			, files, ...

@@ -81,7 +81,7 @@ function copy_if_missing(fromstr,tostr)
 	if exist(fromstr)~=2
 		tryfromstr = fullfile(get_remoteprefix(),fromstr);
 		if exist(tryfromstr)~=2
-			error(['File to be copied doesn''t exist:\n' fromstr])
+			error(['File to be copied doesn''t exist: ' fromstr])
 		else
 			fromstr = tryfromstr;
 		end
