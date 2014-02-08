@@ -6,3 +6,4 @@ java.opts
 *.mat
 .DS_Store
 !device_list.mat
+/scratch
