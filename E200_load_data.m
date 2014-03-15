@@ -36,7 +36,7 @@ function data=E200_load_data(pathstr)
 	% facet-srv20 gets special treatment: no files saved!
 	already_exists=(exist(processed_file_path)==2 || exist(processed_file_path)==7);
 	if isfs20_bool
-		data=E200_gather_data(loadpath);
+		load(loadpath);
 	else
 		% If the file doesn't exist, create it.
 		if already_exists

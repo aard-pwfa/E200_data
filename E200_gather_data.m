@@ -146,6 +146,7 @@ function datafull=E200_gather_data(param,QC_INFO,epics_data,scanbool,E200_state,
 	if scanbool                  	
 		% Change to correct settype.
 		datafull.raw.metadata.settype='scan';
+		datafull.raw.metadata.n_steps=param.n_step;
 	else
 		datafull.raw.metadata.settype='daq';
 	end
