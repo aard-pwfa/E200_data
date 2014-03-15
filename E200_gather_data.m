@@ -70,7 +70,7 @@ function datafull=E200_gather_data(param,QC_INFO,epics_data,scanbool,E200_state,
 			% Save if backgrounds don't exist
 			if ~( exist(bgpathstr)==2 )
 				display('Saving background file...');
-				display(structstr)
+				% display(structstr)
 				img=cam_back.(structstr).img;
 				[bgpathdir,temp,temp]=fileparts(bgpathstr);
 				mkdir(bgpathdir)
@@ -102,46 +102,6 @@ function datafull=E200_gather_data(param,QC_INFO,epics_data,scanbool,E200_state,
 			camnames = param.cams;
 		end
 
-		% format=cell_construct('bin',1,n_i_shots);
-		% for i=1:size(camnames,1)
-		%         str=camnames{i,1};
-		%         [filestr,structstr]=cams2filenames(str,param.timestamp);
-			% Load image headers and get UIDs
-		%         [temp,i_PID]=readImagesHeader([rootpath filenames.(filestr) '.header']);
-		%         option.IMAGE_PID=i_PID';
-		%         option.IMAGE_SCANSTEP=i_scan_step;
-		%         UIDs		= assign_UID(e_PID,e_scan_step,e_dataset,option);
-		%         i_UID = UIDs.image_UID;
-
-		%         data.raw.images.(structstr)=struct();
-		%         data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
-		%                                         'dat'			, cell_construct(filenames.(filestr),1,n_i_shots),...
-		%                                         'format'		, format, ...
-		%                                         'isfile'		, ones(1,n_i_shots), ...
-		%                                         'bin_index'		, [1:n_i_shots], ...
-		%                                         'UID'			, i_UID, ...
-		%                                             'PID'                   , i_PID',...
-		%                                         'IDtype'		, 'Image');
-			% ================================================
-			% Add the remaining info from cam_back
-			% ================================================
-		%         if isstruct(cam_back)
-		%                 data.raw.images.(structstr)=replace_field(data.raw.images.(structstr),...
-		%                                         'background_dat'	, cell_construct(...
-		%                                                                                 bgpath(experimentstr,structstr,datasetstr,scan_step,dir_mid),...
-		%                                                                                 1,n_i_shots),...
-		%                                         'background_format'	, cell_construct('mat',1,n_i_shots));
-		%                 names=fieldnames(cam_back.(str));
-		%                 for j=1:size(names,1)
-		%  _append                       toadd=cam_back.(str).(names{j});
-		%                         if iscell(toadd)
-		%                                 data.raw.images.(structstr).(names{j})=cell_construct(toadd,1,n_i_shots);
-		%                         else
-		%                                 data.raw.images.(structstr).(names{j})=ones(1,n_i_shots)*toadd;
-		%                         end
-		%                 end
-		%         end
-		% end
 	
 			% ================================================
 			% Add metadata
@@ -175,9 +135,6 @@ function datafull=E200_gather_data(param,QC_INFO,epics_data,scanbool,E200_state,
 			if iscell(toadd)
 				datafull.raw.images.(structstr).(names{j})=cell_construct(toadd,1,n_i_shots);
 			else 
-				display(toadd)
-				display(names{j})
-				display(structstr)
 				datafull.raw.images.(structstr).(names{j})=ones(1,n_i_shots)*toadd;
 			end          	
 		end                          
