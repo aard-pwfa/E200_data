@@ -71,7 +71,7 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 	% We need to check if it's valid, and extract dirs.
 	case 2
 		% Check for string endings
-		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')))
+		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')) || ~isempty(regexp(pathstr,'E200_[0-9]*\.mat')))
 			warning(['Neither a scan_info.mat file nor a filenames.mat file:\n' pathstr]);
 		end
 	
