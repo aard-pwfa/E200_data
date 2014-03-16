@@ -52,7 +52,7 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 			loadstr=fullfile(prefix,imgstruct.dat{cur_img_ind});
 			imgs{i}=loadstr;
 			bin_to_load=[bin_to_load, {loadstr}];
-		case 'CMOS'
+		case {'CMOS','tif'}
 			loadstr = fullfile(prefix,imgstruct.dat{cur_img_ind});
 			imgs{i} = imread(loadstr);
 		otherwise
