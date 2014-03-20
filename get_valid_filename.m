@@ -1,4 +1,4 @@
-function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
+function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varargin)
 % PATHSTR=GET_VALID_FILENAME  Gets a valid filename given an input path.
 	switch exist(pathstr)
 	% File doesn't exist
@@ -72,7 +72,12 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 	case 2
 		% Check for string endings
 		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')) || ~isempty(regexp(pathstr,'E200_[0-9]*\.mat')))
-			warning(['Neither a scan_info.mat file nor a filenames.mat file:\n' pathstr]);
+			warning(['Neither a 2014+ data file, scan_info.mat file, nor a filenames.mat file:\n' pathstr]);
+		end
+		if ~isempty(regexp(pathstr,'E200_[0-9]*\.mat'))
+			data_source_type='2014';
+		else
+			data_source_type='2013';
 		end
 	
 		% Check this is a data file.
@@ -90,6 +95,7 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 
 		% Construct filename
 		filename=[namestr,extstr];
+		varargout{1} = data_source_type;
 	end
 end
 
