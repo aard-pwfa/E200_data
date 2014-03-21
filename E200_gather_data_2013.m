@@ -1,7 +1,7 @@
-function data=E200_gather_data(pathstr,varargin)
-% E200_GATHER_DATA Gathers data from saved .mat files into one structure in memory
-%   DATA = E200_GATHER_DATA(PATHSTR) gathers data from PATHSTR.
-%   DATA = E200_GATHER_DATA(PATHSTR,SCAN) gathers data from PATHSTR and assigns it a scan number of SCAN.
+function data=E200_gather_data_2013(pathstr,varargin)
+% E200_gather_data_2013 Gathers data from saved .mat files into one structure in memory
+%   DATA = E200_gather_data_2013(PATHSTR) gathers data from PATHSTR.
+%   DATA = E200_gather_data_2013(PATHSTR,SCAN) gathers data from PATHSTR and assigns it a scan number of SCAN.
 %
 % Inputs:
 %	PATHSTR:	Absolute path to the file to be loaded.  Must be *scan_info.mat or *filenames.mat.
@@ -110,7 +110,7 @@ function data=E200_gather_data(pathstr,varargin)
 		% Load first step
 		options.scan_step=1;
 		loadthis = fullfile(Pathname,stepfiles(1).name)
-		data=E200_gather_data(loadthis,options);
+		data=E200_gather_data_2013(loadthis,options);
 		scan_info(1)
 		data=add_scan_info(data,scan_info(1));
 
@@ -118,7 +118,7 @@ function data=E200_gather_data(pathstr,varargin)
 		for i=2:n_steps
 			steppath=fullfile(Pathname,stepfiles(i).name);
 			options.scan_step=i;
-			data_append=E200_gather_data(steppath,options);
+			data_append=E200_gather_data_2013(steppath,options);
 			data_append=add_scan_info(data_append,scan_info(i));
 			
 			data=E200_concat(data,data_append);

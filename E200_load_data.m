@@ -65,7 +65,37 @@ function data=E200_load_data(pathstr)
 			data=save_data(data,processed_file_path,false);
 		end
 	case '2013'
-		error('2013 type!!');
+		if isfs20_bool
+			data=E200_gather_data_2013(loadpath);
+		else
+			% If the file doesn't exist, create it.
+			if already_exists
+				load(processed_file_path);
+				fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
+				[top,file_id] = strtok(fullpath,'E200');
+				data.VersionInfo.originalpath = ['processed_data/' file_id];
+				return;
+			else
+				% Path to save final mat files
+				savepath=fullfile(processed_file_dir,[filename_rt '_processed_files']);
+				data=E200_gather_data_2013(loadpath);
+	
+				data=E200_convert_images(data,savepath);
+			end
+		end
+	
+		% Info that this comes from a HDD
+		data.VersionInfo.remotefiles.dat=true;
+		data.VersionInfo.remotefiles.comment = 'Indicates whether files are stored on a remote disk (and getpref(''FACET_data'',''prefix'') should be used.';
+		data.VersionInfo.originalfilename=filename_final;
+		fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
+		[top,file_id] = strtok(fullpath,'E200');
+		data.VersionInfo.originalpath = ['processed_data/' file_id];
+		data.VersionInfo.loadrequest=pathstr;
+	
+		if ~isfs20_bool && ~already_exists
+			data=save_data(data,processed_file_path,false);
+		end
 	otherwise
 		error('Shouldn''t get here!!!');
 	end

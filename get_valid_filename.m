@@ -42,7 +42,8 @@ function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varar
 			setpref('FACET_data','prefix','/Volumes/PWFA_4big');
 		end
 
-		[dir_beg,dir_mid,filename]=get_valid_filename(pathstr);
+		% [dir_beg,dir_mid,filename]=get_valid_filename(pathstr);
+		[dir_beg,dir_mid,filename,varargout{1}]=get_valid_filename(pathstr);
 		return;
 
 	% 7 indicates a folder
@@ -52,7 +53,8 @@ function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varar
 		for i=1:size(patterns,2)
 			[bool,new_pathstr]=check_dir(pathstr,patterns{i});
 			if bool
-				[dir_beg,dir_mid,filename]=get_valid_filename(new_pathstr);
+				% [dir_beg,dir_mid,filename]=get_valid_filename(new_pathstr);
+				[dir_beg,dir_mid,filename,varargout{1}]=get_valid_filename(new_pathstr);
 				return;
 			end
 		end
