@@ -1,4 +1,4 @@
-function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
+function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varargin)
 % PATHSTR=GET_VALID_FILENAME  Gets a valid filename given an input path.
 	switch exist(pathstr)
 	% File doesn't exist
@@ -42,7 +42,8 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 			setpref('FACET_data','prefix','/Volumes/PWFA_4big');
 		end
 
-		[dir_beg,dir_mid,filename]=get_valid_filename(pathstr);
+		% [dir_beg,dir_mid,filename]=get_valid_filename(pathstr);
+		[dir_beg,dir_mid,filename,varargout{1}]=get_valid_filename(pathstr);
 		return;
 
 	% 7 indicates a folder
@@ -52,7 +53,8 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 		for i=1:size(patterns,2)
 			[bool,new_pathstr]=check_dir(pathstr,patterns{i});
 			if bool
-				[dir_beg,dir_mid,filename]=get_valid_filename(new_pathstr);
+				% [dir_beg,dir_mid,filename]=get_valid_filename(new_pathstr);
+				[dir_beg,dir_mid,filename,varargout{1}]=get_valid_filename(new_pathstr);
 				return;
 			end
 		end
@@ -71,8 +73,13 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 	% We need to check if it's valid, and extract dirs.
 	case 2
 		% Check for string endings
-		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')))
-			warning(['Neither a scan_info.mat file nor a filenames.mat file:\n' pathstr]);
+		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')) || ~isempty(regexp(pathstr,'E200_[0-9]*\.mat')))
+			warning(['Neither a 2014+ data file, scan_info.mat file, nor a filenames.mat file:\n' pathstr]);
+		end
+		if ~isempty(regexp(pathstr,'E200_[0-9]*\.mat'))
+			data_source_type='2014';
+		else
+			data_source_type='2013';
 		end
 	
 		% Check this is a data file.
@@ -90,6 +97,7 @@ function [dir_beg, dir_mid, filename]=get_valid_filename(pathstr,varargin)
 
 		% Construct filename
 		filename=[namestr,extstr];
+		varargout{1} = data_source_type;
 	end
 end
 
