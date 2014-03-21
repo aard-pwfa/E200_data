@@ -56,6 +56,9 @@ function datafull=E200_gather_data(param,QC_INFO,epics_data,scanbool,E200_state,
 		% ================================================
 		data.raw.scalars.step_num = add_raw(e_scan_step,e_UID,'EPICS');
 		data.raw.scalars.set_num  = add_raw(e_dataset, e_UID, 'EPICS');
+		if scanbool
+			data.raw.scalars.step_value = add_raw(param.PV_scan_list(scan_step)*ones(1,n_e_shots),e_UID,'EPICS');
+		end
 
 		% ================================================
 		% Extract and save backgrounds 
