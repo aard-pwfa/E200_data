@@ -49,7 +49,7 @@ function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varar
 	% 7 indicates a folder
 	% We need to find a file.
 	case 7
-		patterns={'*scan_info.mat','*filenames.mat'};
+		patterns={'*scan_info.mat','*filenames.mat','E200_*.mat'};
 		for i=1:size(patterns,2)
 			[bool,new_pathstr]=check_dir(pathstr,patterns{i});
 			if bool
