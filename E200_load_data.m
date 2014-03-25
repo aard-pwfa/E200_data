@@ -12,7 +12,7 @@ function data=E200_load_data(pathstr,varargin)
 
 
 	% Get valid parts of filename to use
-	if nargin>0
+	if nargin>1
 		expstr = varargin{1};
 	else
 		expstr = 'E200'

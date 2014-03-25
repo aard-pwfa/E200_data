@@ -1,6 +1,6 @@
 function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varargin)
 % PATHSTR=GET_VALID_FILENAME  Gets a valid filename given an input path.
-	if nargin>0
+	if nargin>1
 		expstr=varargin{1};
 	else
 		expstr='E200';
