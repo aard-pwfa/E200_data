@@ -1,4 +1,4 @@
-function data=E200_load_data(pathstr)
+function data=E200_load_data(pathstr,varargin)
 % E200_LOAD_DATA  Convert original, binary data into a new file format and load into memory
 %   DATA = E200_LOAD_DATA(FILENAME) converts FILENAME 
 %   into the new file format and loads it into memory.
@@ -12,7 +12,12 @@ function data=E200_load_data(pathstr)
 
 
 	% Get valid parts of filename to use
-	[dir_beg,dir_mid,filename,data_source_type]=get_valid_filename(pathstr);
+	if nargin>0
+		expstr = varargin{1};
+	else
+		expstr = 'E200'
+	end
+	[dir_beg,dir_mid,filename,data_source_type]=get_valid_filename(pathstr,expstr);
 	
 	% Full path to file to load
 	loadpath=fullfile(dir_beg,dir_mid,filename);
@@ -45,7 +50,7 @@ function data=E200_load_data(pathstr)
 			if already_exists
 					load(processed_file_path);
 					fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
-					[top,file_id] = strtok(fullpath,'E200');
+					[top,file_id] = strtok(fullpath,expstr);
 					data.VersionInfo.originalpath = ['processed_data/' file_id];
 				return;
 			else
@@ -59,7 +64,7 @@ function data=E200_load_data(pathstr)
 			data.VersionInfo.remotefiles.comment = 'Indicates whether files are stored on a remote disk (and getpref(''FACET_data'',''prefix'') should be used.';
 			data.VersionInfo.originalfilename=filename_final;
 			fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
-			[top,file_id] = strtok(fullpath,'E200');
+			[top,file_id] = strtok(fullpath,expstr);
 			data.VersionInfo.originalpath = ['processed_data/' file_id];
 			data.VersionInfo.loadrequest=pathstr;
 			data=save_data(data,processed_file_path,false);
@@ -72,7 +77,7 @@ function data=E200_load_data(pathstr)
 			if already_exists
 				load(processed_file_path);
 				fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
-				[top,file_id] = strtok(fullpath,'E200');
+				[top,file_id] = strtok(fullpath,expstr);
 				data.VersionInfo.originalpath = ['processed_data/' file_id];
 				return;
 			else
@@ -89,7 +94,7 @@ function data=E200_load_data(pathstr)
 		data.VersionInfo.remotefiles.comment = 'Indicates whether files are stored on a remote disk (and getpref(''FACET_data'',''prefix'') should be used.';
 		data.VersionInfo.originalfilename=filename_final;
 		fullpath=regexprep(dir_mid,'nas/nas-li20-pm0.','processed_data');
-		[top,file_id] = strtok(fullpath,'E200');
+		[top,file_id] = strtok(fullpath,expstr);
 		data.VersionInfo.originalpath = ['processed_data/' file_id];
 		data.VersionInfo.loadrequest=pathstr;
 	

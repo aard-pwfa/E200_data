@@ -1,5 +1,11 @@
 function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varargin)
 % PATHSTR=GET_VALID_FILENAME  Gets a valid filename given an input path.
+	if nargin>0
+		expstr=varargin{1};
+	else
+		expstr='E200';
+	end
+
 	switch exist(pathstr)
 	% File doesn't exist
 	% This case must terminate in us trying again.
@@ -49,7 +55,7 @@ function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varar
 	% 7 indicates a folder
 	% We need to find a file.
 	case 7
-		patterns={'*scan_info.mat','*filenames.mat','E200_*.mat'};
+		patterns={'*scan_info.mat','*filenames.mat',[expstr '_*.mat']};
 		for i=1:size(patterns,2)
 			[bool,new_pathstr]=check_dir(pathstr,patterns{i});
 			if bool
@@ -73,10 +79,10 @@ function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varar
 	% We need to check if it's valid, and extract dirs.
 	case 2
 		% Check for string endings
-		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')) || ~isempty(regexp(pathstr,'E200_[0-9]*\.mat')))
+		if ~(~isempty(regexp(pathstr,'scan_info.mat$')) || ~isempty(regexp(pathstr,'filenames.mat$')) || ~isempty(regexp(pathstr,[expstr '_[0-9]*\.mat'])))
 			warning(['Neither a 2014+ data file, scan_info.mat file, nor a filenames.mat file:\n' pathstr]);
 		end
-		if ~isempty(regexp(pathstr,'E200_[0-9]*\.mat'))
+		if ~isempty(regexp(pathstr,[expstr '_[0-9]*\.mat']))
 			data_source_type='2014';
 		else
 			data_source_type='2013';
