@@ -31,7 +31,7 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	% Valid UIDs
 	[valid_UID, img_UID_ind, UID_ind]=intersect(imgstruct.UID,UID);
 	num_imgs=length(img_UID_ind);
-	display(['Loading ' num2str(num_imgs) ' images via E200_load_images...']);
+	% display(['Loading ' num2str(num_imgs) ' images via E200_load_images...']);
 
 	imgs=cell(1,num_imgs);
 	% bin_to_load=cell(1,size(UID,2));
