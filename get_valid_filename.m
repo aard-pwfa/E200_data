@@ -88,9 +88,9 @@ function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varar
 	
 		% Check this is a data file.
 		% Must have /nas/nas-li20-pm01
-		startind=regexp(pathstr,'/nas/nas-li20-pm01');
+		startind=regexp(pathstr,'/nas/nas-li20-pm0');
 		if isempty(startind)
-			error('Does not point to a file with /nas/nas-li20-pm01 in its path.');
+			error('Does not point to a file with /nas/nas-li20-pm01 or /nas/nas-li20-pm00 in its path.');
 		end
 		startind=startind(1);
 
