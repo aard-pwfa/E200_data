@@ -9,7 +9,7 @@ function prefix=get_remoteprefix()
 		prefix=def_prefix;       
 	end
 
-	datapath=fullfile(prefix,'nas','nas-li20-pm01');
+	datapath=fullfile(prefix,'nas','nas-li20-pm00');
 	if exist(datapath)~=7
 		% Drive may not be mounted: warn user, allow to mount drive or change prefix.
 		options={'Try again.','Locate folder containing /nas.'};
