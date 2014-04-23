@@ -73,6 +73,11 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 				img = 0;
 			end
 			imgs_bg= [imgs_bg {img}];
+
+			% Rotate image to correct orientation
+			if size(imgs{i},1) == size(imgs_bg{i},2)
+				imgs_bg{i} = rot90(imgs_bg{i});
+			end
 		end
 	end
 
