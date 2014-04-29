@@ -79,6 +79,19 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 				imgs_bg{i} = rot90(imgs_bg{i});
 			end
 		end
+
+		if imgstruct.X_ORIENT(cur_img_ind)
+			imgs{i}=fliplr(imgs{i});
+			if nargout==2
+				imgs_bg{i}=fliplr(imgs_bg{i});
+			end
+		end
+		if imgstruct.Y_ORIENT(cur_img_ind)
+			imgs{i}=flipud(imgs{i});
+			if nargout==2
+				imgs_bg{i}=flipud(imgs_bg{i});
+			end
+		end
 	end
 
 	% Load binaries here, prevent redundancy
@@ -101,4 +114,5 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 			end
 		end
 	end
+
 end
