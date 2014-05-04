@@ -13,7 +13,12 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	% Assume that it's remote by default,
 	% but allow attaching data to specify.
 	if nargin==3
-		remote=varargin{1}.VersionInfo.remotefiles.dat;
+		data=varargin{1};
+		if isfield(data.VersionInfo,'remotefiles')
+			remote=varargin{1}.VersionInfo.remotefiles.dat;
+		else
+			remote=true;
+		end
 	else
 		remote=true;
 	end
