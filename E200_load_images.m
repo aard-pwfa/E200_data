@@ -22,6 +22,11 @@ function [imgs, varargout]=E200_load_images(varargin)
 %   	IMGS_BG:	A cell array of matrices representing the background images loaded.
 
 	% ===========================================
+	% Warning system setup
+	% ===========================================
+	warnarray = {};
+
+	% ===========================================
 	% Create parser and parse input
 	% ===========================================
 	p=inputParser;
@@ -34,7 +39,7 @@ function [imgs, varargout]=E200_load_images(varargin)
 	if nargout == 3
 		p.Results.returnUID=true;
 		p.Results.returnBackground=true;
-		warning('Three output arguments requested: returning [imgs, img_bgs, valid_UID].');
+		warnarray = [warnarray 'Three output arguments requested: returning [imgs, img_bgs, valid_UID].'];
 	end
 	imgstruct = p.Results.imgstruct;
 	UID = p.Results.UID;
@@ -43,9 +48,28 @@ function [imgs, varargout]=E200_load_images(varargin)
 	% Warn about errors
 	% ===========================================
 	if ~isempty(imgstruct.ERRORS)
-		warning('There are errors for the camera requested!');
-		display(imgstruct.ERRORS);
+		warnarray = [warnarray 'There are errors for the camera requested!'];
 	end
+
+	% ===========================================
+	% Remove UID==0
+	% ===========================================
+	zero_ind = (imgstruct.UID==0);
+	avail_UID = imgstruct.UID(~zero_ind);
+	num_zero_UIDs = sum(zero_ind);
+	if (num_zero_UIDs > 0)
+		warnarray = [warnarray ['There are ' num2str(num_zero_UIDs) ' images with a UID of zero (invalid).']];
+	end
+
+	% ===========================================
+	% Valid UIDs
+	% ===========================================
+	[valid_UID, img_UID_ind, UID_ind]=intersect(avail_UID,UID);
+	num_imgs=length(img_UID_ind);
+	if num_imgs ~= length(UID)
+		warnarray = [warnarray 'Not all requested UIDs available!'];
+	end
+	% display(['Loading ' num2str(num_imgs) ' images via E200_load_images...']);
 
 	% ===========================================
 	% Assume that it's remote by default,
@@ -70,16 +94,6 @@ function [imgs, varargout]=E200_load_images(varargin)
 	else
 		prefix='';
 	end
-
-	% Initialize cell arrays
-	% num_imgs=size(imgstruct.UID,2)
-
-	% ===========================================
-	% Valid UIDs
-	% ===========================================
-	[valid_UID, img_UID_ind, UID_ind]=intersect(imgstruct.UID,UID);
-	num_imgs=length(img_UID_ind);
-	% display(['Loading ' num2str(num_imgs) ' images via E200_load_images...']);
 
 	imgs=cell(1,num_imgs);
 	% bin_to_load=cell(1,size(UID,2));
@@ -106,7 +120,7 @@ function [imgs, varargout]=E200_load_images(varargin)
 			loadstr = fullfile(prefix,imgstruct.dat{cur_img_ind});
 			imgs{i} = imread(loadstr);
 		otherwise
-			warning(['Image format (' fmt ') not recognized.']);
+			warnarray = [warnarray ['Image format (' fmt ') not recognized.']];
 		end
 		% If backgrounds are requested, load backgrounds
 		if nargout==2
@@ -158,7 +172,7 @@ function [imgs, varargout]=E200_load_images(varargin)
 		if p.Results.returnBackground
 			varargout{1} = imgs_bg;
 		elseif nargout==2
-			warning('Unclear which outputs to give- returning [images, backgrounds]');
+			warnarray = [warnarray 'Unclear which outputs to give- returning [images, backgrounds]'];
 			varargout{1} = imgs_bg;
 		end
 	end
@@ -184,6 +198,16 @@ function [imgs, varargout]=E200_load_images(varargin)
 				end
 			end
 		end
+	end
+
+	% ===========================================
+	% Issue warnings
+	% ===========================================
+	if length(warnarray)>0
+		for str = warnarray
+			display(['Warning: ' str{1}]);
+		end
+		warning('Errors (see above)');
 	end
 
 end
