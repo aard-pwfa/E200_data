@@ -1,19 +1,58 @@
-function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
-% E200_LOAD_IMAGES  Loads images, accounts for remote/local paths
+function [imgs, varargout]=E200_load_images(varargin)
+% E200_LOAD_IMAGES  Loads rotated images, accounts for remote/local paths
 %   [IMGS, (IMG_BG)] = E200_LOAD_IMAGES(IMGSTRUCT,UID) Loads images, assumes they are remote
 %   [IMGS, (IMG_BG)] = E200_LOAD_IMAGES(IMGSTRUCT,UID,DATA) Loads images, determines if they are remote from DATA.
 % 
-%   IMGSTRUCT:	Struct holding images.  E.g. data.raw.images.YAG
-%   UID:	A cell array of UIDs desired from this IMGSTRUCT
-%   (DATA):	Optional, the entire data structure varaible.
+%   Arguments:
+%   	IMGSTRUCT:	Struct holding images.  E.g. data.raw.images.YAG
+%   	UID:		A cell array of UIDs desired from this IMGSTRUCT
+%   	(DATA):		Optional, the entire data structure varaible.
 %   
-%   IMGS:	A cell array of matrices representing the images loaded.
-%   IMGS_BG:	A cell array of matrices representing the background images loaded.
+%   Parameters:
+%   	returnBackground (default=false):	If true, function returns image backgrounds
+%   	returnUID        (default=false):	If true, returns a list of UIDs corresponding to images.
+%   	
+%   	Example:
+%   		[imgs, img_bgs] 		= E200_LOAD_IMAGES(IMGSTRUCT,UID,(DATA),'returnBackground',true);
+%   		[imgs, valid_UID] 		= E200_LOAD_IMAGES(IMGSTRUCT,UID,(DATA),'returnUID',true);
+%   		[imgs, img_bgs, valid_UID] 	= E200_LOAD_IMAGES(IMGSTRUCT,UID,(DATA),'returnBackground',true,'returnUID',true);
+%   
+%   Output:
+%   	IMGS:		A cell array of matrices representing the images loaded.
+%   	IMGS_BG:	A cell array of matrices representing the background images loaded.
 
+	% ===========================================
+	% Create parser and parse input
+	% ===========================================
+	p=inputParser;
+	p.addRequired('imgstruct')
+	p.addRequired('UID')
+	p.addOptional('data',false);
+	p.addParameter('returnUID',false);
+	p.addParameter('returnBackground',false,@islogical);
+	p.parse(varargin{:});
+	if nargout == 3
+		p.Results.returnUID=true;
+		p.Results.returnBackground=true;
+		warning('Three output arguments requested: returning [imgs, img_bgs, valid_UID].');
+	end
+	imgstruct = p.Results.imgstruct;
+	UID = p.Results.UID;
+
+	% ===========================================
+	% Warn about errors
+	% ===========================================
+	if ~isempty(imgstruct.ERRORS)
+		warning('There are errors for the camera requested!');
+		display(imgstruct.ERRORS);
+	end
+
+	% ===========================================
 	% Assume that it's remote by default,
 	% but allow attaching data to specify.
-	if nargin==3
-		data=varargin{1};
+	% ===========================================
+	if isstruct(p.Results.data)
+		data=p.Results.data;
 		if isfield(data.VersionInfo,'remotefiles')
 			remote=varargin{1}.VersionInfo.remotefiles.dat;
 		else
@@ -23,7 +62,9 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 		remote=true;
 	end
 
+	% ===========================================
 	% Get prefix - if not remote, there is no prefix.
+	% ===========================================
 	if remote
 		prefix=get_remoteprefix();
 	else
@@ -33,7 +74,9 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	% Initialize cell arrays
 	% num_imgs=size(imgstruct.UID,2)
 
+	% ===========================================
 	% Valid UIDs
+	% ===========================================
 	[valid_UID, img_UID_ind, UID_ind]=intersect(imgstruct.UID,UID);
 	num_imgs=length(img_UID_ind);
 	% display(['Loading ' num2str(num_imgs) ' images via E200_load_images...']);
@@ -43,7 +86,9 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 	bin_to_load={};
 	imgs_bg={};
 
+	% ===========================================
 	% Find and load valid UID given.
+	% ===========================================
 	for i=1:num_imgs
 		cur_img_ind=img_UID_ind(i);
 		% Load what we can - not necessarily in order!
@@ -99,8 +144,29 @@ function [imgs,imgs_bg]=E200_load_images(imgstruct,UID,varargin)
 		end
 	end
 
+	% ===========================================
+	% Output backgrounds, UIDs, as requested
+	% ===========================================
+	if p.Results.returnUID
+		if p.Results.returnBackground
+			varargout{1} = imgs_bg;
+			varargout{2} = valid_UID;
+		else
+			varargout{1} = valid_UID;
+		end
+	else
+		if p.Results.returnBackground
+			varargout{1} = imgs_bg;
+		elseif nargout==2
+			warning('Unclear which outputs to give- returning [images, backgrounds]');
+			varargout{1} = imgs_bg;
+		end
+	end
+
+	% ===========================================
 	% Load binaries here, prevent redundancy
 	% Read each file in
+	% ===========================================
 	bin_to_load=unique(bin_to_load);
 	if ~isempty(bin_to_load)
 		for j=1:size(bin_to_load,2)
