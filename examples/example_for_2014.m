@@ -1,10 +1,10 @@
 close('all');
 
 % set path to data
-data_path='/nas/nas-li20-pm01/E200/2014/20140316/E200_12037/E200_12037.mat';
+data_path='/nas/nas-li20-pm00/E217/2014/20140406/E217_12407/E217_12407.mat';
 
 % load data
-data=E200_load_data(data_path);
+data=E200_load_data(data_path,'E217');
 
 % scalar data (EPICS PVs) are stored in data.raw.images
 pyro = data.raw.scalars.BLEN_LI20_3014_BRAW.dat;
@@ -39,7 +39,7 @@ title('Reoriented SYAG Shot');
 
 % look at lot's of images, do a computation
 figure(4);
-images = E200_load_images(SYAG_struct,SYAG_struct.UID);
+[images,valid_UID] = E200_load_images(SYAG_struct,SYAG_struct.UID,'returnUID',true);
 for i = 1:numel(images)
 	image = images{i};
 	pixel_sum(i) = sum(image(:));
@@ -50,7 +50,7 @@ end
 
 % Compare image data with EPICS data using the UID
 PYRO_UID = data.raw.scalars.BLEN_LI20_3014_BRAW.UID;
-SYAG_UID = data.raw.images.SYAG.UID;
+SYAG_UID = valid_UID;
 
 % generate a set of indices for matching shots (in other words,
 % EPICS_UID(EPICS_index) is guaranteed to be the same set of shots as
