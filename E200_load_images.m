@@ -33,8 +33,13 @@ function [imgs, varargout]=E200_load_images(varargin)
 	p.addRequired('imgstruct')
 	p.addRequired('UID')
 	p.addOptional('data',false);
-	p.addParameter('returnUID',false);
-	p.addParameter('returnBackground',false,@islogical);
+	if verLessThan('matlab','8.2.0.29')
+		p.addParamValue('returnUID',false);
+		p.addParamValue('returnBackground',false,@islogical);
+	else
+		p.addParameter('returnUID',false);
+		p.addParameter('returnBackground',false,@islogical);
+	end
 	p.parse(varargin{:});
 	if nargout == 3
 		p.Results.returnUID=true;
