@@ -151,13 +151,13 @@ function [imgs, varargout]=E200_load_images(varargin)
 			end
 		end
 
-		if imgstruct.X_ORIENT(cur_img_ind)
+		if strcmp(imgstruct.X_ORIENT{cur_img_ind},'Negative')
 			imgs{i}=fliplr(imgs{i});
 			if nargout==2
 				imgs_bg{i}=fliplr(imgs_bg{i});
 			end
 		end
-		if imgstruct.Y_ORIENT(cur_img_ind)
+		if strcmp(imgstruct.Y_ORIENT{cur_img_ind},'Negative')
 			imgs{i}=flipud(imgs{i});
 			if nargout==2
 				imgs_bg{i}=flipud(imgs_bg{i});
