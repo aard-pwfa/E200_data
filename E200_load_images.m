@@ -52,8 +52,10 @@ function [imgs, varargout]=E200_load_images(varargin)
 	% ===========================================
 	% Warn about errors
 	% ===========================================
-	if ~isempty(imgstruct.ERRORS)
-		warnarray = [warnarray 'There are errors for the camera requested!'];
+	if isfield(imgstruct,'ERRORS')
+		if ~isempty(imgstruct.ERRORS)
+			warnarray = [warnarray 'There are errors for the camera requested!'];
+		end
 	end
 
 	% ===========================================
@@ -83,7 +85,7 @@ function [imgs, varargout]=E200_load_images(varargin)
 	if isstruct(p.Results.data)
 		data=p.Results.data;
 		if isfield(data.VersionInfo,'remotefiles')
-			remote=varargin{1}.VersionInfo.remotefiles.dat;
+			remote=data.VersionInfo.remotefiles.dat;
 		else
 			remote=true;
 		end

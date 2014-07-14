@@ -17,7 +17,7 @@ function prefix=get_remoteprefix()
 
 		% While the user tries again, and the datapath isn't a folder
 		while strcmp(button,options{1}) && exist(datapath)~=7
-			button=questdlg(sprintf(['WARNING: Path to data doesn''t exist:\n\n' prefix '\n\nDrive may not be mounted.']),'Data Not Found',options{1},options{2},options{1});
+			button=questdlg(sprintf(['WARNING: Path to data doesn''t exist:\n\n' datapath '\n\nDrive may not be mounted.']),'Data Not Found',options{1},options{2},options{1});
 			if strcmp(button,options{2})
 				prefix=uigetdir(prefix,options{2});
 				if prefix==0
