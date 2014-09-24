@@ -19,7 +19,8 @@ function data=save_data(data,filepath,relative)
 	data=recurse_save_file(data,datapath,relative);
 
 	% Save file
-	save(filepath,'data');
+	% save(filepath,'data');
+	save(filepath,'data','-v7.3');
 	display('Finished saving!');
 end
 

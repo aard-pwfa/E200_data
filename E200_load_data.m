@@ -15,7 +15,7 @@ function data=E200_load_data(pathstr,varargin)
 	if nargin>1
 		expstr = varargin{1};
 	else
-		expstr = 'E200'
+		expstr = 'E200';
 	end
 	[dir_beg,dir_mid,filename,data_source_type]=get_valid_filename(pathstr,expstr);
 	
@@ -39,7 +39,8 @@ function data=E200_load_data(pathstr,varargin)
 	
 	% Run certain things depending on which machine you're on.
 	% facet-srv20 gets special treatment: no files saved!
-	already_exists=(exist(processed_file_path)==2 || exist(processed_file_path)==7);
+	exist_type = exist(processed_file_path);
+	already_exists=(exist_type==2 || exist_type==7);
 	switch data_source_type
 	case '2014'
 		if isfs20_bool
