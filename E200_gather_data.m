@@ -52,6 +52,22 @@ function datafull=E200_gather_data(param,QC_INFO,epics_data,scanbool,E200_state,
 		end
 
 		% ================================================
+		% Save 2d scan
+		% ================================================
+		if isfield(param,'scan2D_bool')
+			if param.scan2D_bool
+				pv1_ind = param.PV_scan_ind1(scan_step);
+				pv2_ind = param.PV_scan_ind2(scan_step);
+
+				data.raw.scalars.step_num_dim1 = add_raw(pv1_ind*ones(1,n_e_shots),e_UID,'EPICS');
+				data.raw.scalars.step_num_dim2 = add_raw(pv2_ind*ones(1,n_e_shots),e_UID,'EPICS');
+
+				data.raw.scalars.step_value_dim1 = add_raw(param.PV_scan_list1(pv1_ind)*ones(1,n_e_shots),e_UID,'EPICS');
+				data.raw.scalars.step_value_dim2 = add_raw(param.PV_scan_list2(pv2_ind)*ones(1,n_e_shots),e_UID,'EPICS');
+			end
+		end
+
+		% ================================================
 		% Save these things to the struct
 		% ================================================
 		data.raw.scalars.step_num = add_raw(e_scan_step,e_UID,'EPICS');
