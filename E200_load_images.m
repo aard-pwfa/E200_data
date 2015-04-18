@@ -131,7 +131,12 @@ function [imgs, varargout]=E200_load_images(varargin)
         end
         % If backgrounds are requested, load backgrounds
         if nargout==2
-            if isfield(imgstruct,'background_dat') && imgstruct.background_saved{cur_img_ind}
+	    if isfield(imgstruct,'background_saved')
+		    background_saved_bool = imgstruct.background_saved{cur_img_ind};
+	    else
+		    background_saved_bool = true;
+	    end
+            if isfield(imgstruct,'background_dat') && background_saved_bool
                 switch imgstruct.background_format{cur_img_ind}
                 case 'mat'
                     load(fullfile(prefix,imgstruct.background_dat{cur_img_ind}));
