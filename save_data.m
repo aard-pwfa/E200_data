@@ -4,9 +4,15 @@ function data=save_data(data,filepath,relative)
 	[path,name,ext]=fileparts(filepath);
 
 	% Get relevant parameters
-	expstr=data.raw.metadata.param.dat{1}.experiment;
-	set_num=data.raw.scalars.set_num.dat(1);
-	set_str=num2str(set_num);
+	if isfield(data.raw.metadata.param,'dat')
+		expstr  = data.raw.metadata.param.dat{1}.experiment;
+		set_num = data.raw.scalars.set_num.dat(1);
+		set_str = num2str(set_num);
+	else
+		expstr = data.raw.metadata.param.experiment;
+		set_num = data.raw.scalars.set_num.dat(1);
+		set_str = num2str(set_num);
+	end
 	
 	datapath=fullfile(path,[name '_files']);
 
