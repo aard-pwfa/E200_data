@@ -12,12 +12,7 @@ function data=E200_load_data(pathstr,varargin)
 
 
 	% Get valid parts of filename to use
-	if nargin>1
-		expstr = varargin{1};
-	else
-		expstr = 'E200';
-	end
-	[dir_beg,dir_mid,filename,data_source_type]=get_valid_filename(pathstr,expstr);
+	[dir_beg,dir_mid,filename,data_source_type]=get_valid_filename(pathstr);
 	
 	% Full path to file to load
 	loadpath=fullfile(dir_beg,dir_mid,filename);
@@ -45,6 +40,7 @@ function data=E200_load_data(pathstr,varargin)
 	case '2014'
 		if isfs20_bool
 			% data=E200_gather_data(loadpath);
+            load(loadpath)
 		else
 			load(loadpath)
 			data.VersionInfo.remotefiles.dat=true;

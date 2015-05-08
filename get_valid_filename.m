@@ -1,10 +1,8 @@
-function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr,varargin)
+function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr)
 % PATHSTR=GET_VALID_FILENAME  Gets a valid filename given an input path.
-	if nargin>1
-		expstr=varargin{1};
-	else
-		expstr='E200';
-	end
+
+    [ind_start, ind_end] = regexp(pathstr,'/E\d{3}/')
+    expstr = pathstr(ind_start+1:ind_end-1)
 
 	switch exist(pathstr)
 	% File doesn't exist
