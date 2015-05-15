@@ -1,8 +1,8 @@
 function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr)
 % PATHSTR=GET_VALID_FILENAME  Gets a valid filename given an input path.
 
-    [ind_start, ind_end] = regexp(pathstr,'/E\d{3}/')
-    expstr = pathstr(ind_start+1:ind_end-1)
+    [ind_start, ind_end] = regexp(pathstr,'/E\d{3}/');
+    expstr = pathstr(ind_start+1:ind_end-1);
 
 	switch exist(pathstr)
 	% File doesn't exist
@@ -46,7 +46,7 @@ function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr)
 			setpref('FACET_data','prefix','/Volumes/PWFA_4big');
 		end
 
-		[dir_beg,dir_mid,filename,varargout{1}]=get_valid_filename(pathstr,expstr);
+		[dir_beg,dir_mid,filename,varargout{1}]=get_valid_filename(pathstr);
 		return;
 
 	% 7 indicates a folder
@@ -56,7 +56,7 @@ function [dir_beg, dir_mid, filename,varargout]=get_valid_filename(pathstr)
 		for i=1:size(patterns,2)
 			[bool,new_pathstr]=check_dir(pathstr,patterns{i});
 			if bool
-				[dir_beg,dir_mid,filename,varargout{1}]=get_valid_filename(new_pathstr,expstr);
+				[dir_beg,dir_mid,filename,varargout{1}]=get_valid_filename(new_pathstr);
 				return;
 			end
 		end
